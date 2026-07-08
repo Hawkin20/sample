@@ -16,6 +16,25 @@ const fadeUp = {
   transition: { duration: 0.4 },
 }
 
+// Placeholder project — always shown when no real projects match
+const PLACEHOLDER_PROJECT = {
+  id: '__placeholder__',
+  title: 'Palacio de Oro',
+  slug: '__placeholder__',
+  description: 'A premium digital experience built with React and Supabase',
+  long_description: null,
+  status: 'published' as const,
+  featured: false,
+  cover_image: null,
+  github_url: null,
+  live_url: null,
+  tags: ['React', 'Supabase', 'Tailwind'],
+  order_index: 9999,
+  created_at: '',
+  updated_at: '',
+  __placeholder: true,
+} as Project & { __placeholder?: boolean }
+
 function EmptyProjectsIllustration() {
   return (
     <div className="py-24 text-center">
@@ -26,21 +45,16 @@ function EmptyProjectsIllustration() {
         className="mx-auto mb-6 h-32 w-auto opacity-40"
         aria-hidden="true"
       >
-        {/* Folder body */}
         <rect x="20" y="50" width="160" height="95" rx="8" fill="currentColor" className="text-muted" />
         <rect x="20" y="40" width="70" height="20" rx="6" fill="currentColor" className="text-muted" />
-        {/* Document lines */}
         <rect x="50" y="80" width="100" height="6" rx="3" fill="currentColor" className="text-muted-foreground/30" />
         <rect x="50" y="96" width="80" height="6" rx="3" fill="currentColor" className="text-muted-foreground/20" />
         <rect x="50" y="112" width="60" height="6" rx="3" fill="currentColor" className="text-muted-foreground/15" />
-        {/* Magnifier */}
         <circle cx="148" cy="42" r="18" stroke="currentColor" strokeWidth="5" className="text-gold/50" />
         <line x1="161" y1="55" x2="174" y2="68" stroke="currentColor" strokeWidth="5" strokeLinecap="round" className="text-gold/50" />
       </svg>
       <p className="text-base font-medium text-foreground">No projects found</p>
-      <p className="mt-1.5 text-sm text-muted-foreground">
-        Try adjusting your search or filters.
-      </p>
+      <p className="mt-1.5 text-sm text-muted-foreground">Try adjusting your search or filters.</p>
     </div>
   )
 }
@@ -64,12 +78,12 @@ export function ProjectsPage() {
   }, [])
 
   const allTags = useMemo(() => {
-    const tags = new Set(projects.flatMap((p) => p.tags))
+    const tags = new Set([...projects.flatMap((p) => p.tags), ...PLACEHOLDER_PROJECT.tags])
     return Array.from(tags).sort()
   }, [projects])
 
   const filtered = useMemo(() => {
-    return projects.filter((p) => {
+    const real = projects.filter((p) => {
       const matchSearch =
         !search ||
         p.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -77,6 +91,19 @@ export function ProjectsPage() {
       const matchTag = !activeTag || p.tags.includes(activeTag)
       return matchSearch && matchTag
     })
+
+    // Always include placeholder if it matches active filters
+    const placeholderMatchesSearch =
+      !search ||
+      PLACEHOLDER_PROJECT.title.toLowerCase().includes(search.toLowerCase()) ||
+      PLACEHOLDER_PROJECT.description?.toLowerCase().includes(search.toLowerCase())
+    const placeholderMatchesTag =
+      !activeTag || PLACEHOLDER_PROJECT.tags.includes(activeTag)
+
+    if (placeholderMatchesSearch && placeholderMatchesTag) {
+      return [...real, PLACEHOLDER_PROJECT as Project]
+    }
+    return real
   }, [projects, search, activeTag])
 
   return (
@@ -180,68 +207,107 @@ export function ProjectsPage() {
           ) : (
             <motion.div layout className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               <AnimatePresence mode="popLayout">
-                {filtered.map((project) => (
-                  <motion.div
-                    key={project.id}
-                    layout
-                    {...fadeUp}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                  >
-                    <Link to={`/projects/${project.slug}`}>
-                      <Card className="group h-full overflow-hidden border-border/40 bg-surface transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/30 hover:shadow-xl hover:shadow-black/20">
-                        {project.cover_image ? (
-                          <div className="aspect-video overflow-hidden">
-                            <img
-                              src={project.cover_image}
-                              alt={project.title}
-                              className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            />
-                          </div>
-                        ) : (
-                          <div className="flex aspect-video items-center justify-center bg-gradient-to-br from-gold/10 via-surface to-surface">
-                            <span className="text-4xl font-extrabold text-gold/20">
-                              {project.title[0]}
-                            </span>
-                          </div>
-                        )}
-                        <CardContent className="p-5">
-                          <div className="mb-3 flex flex-wrap gap-1.5">
-                            {project.tags.slice(0, 3).map((tag) => (
-                              <Badge key={tag} variant="secondary" className="bg-secondary/60 text-xs">
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
-                          <h3 className="mb-2 font-semibold leading-snug text-foreground transition-colors group-hover:text-gold">
-                            {project.title}
-                          </h3>
-                          <p className="text-sm leading-[1.75] text-muted-foreground line-clamp-2">
-                            {project.description}
-                          </p>
-                          <div className="mt-4 flex items-center gap-4">
-                            {project.github_url && (
-                              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                <GitBranch className="size-3.5" />
-                                GitHub
-                              </span>
-                            )}
-                            {project.live_url && (
-                              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                <ExternalLink className="size-3.5" />
-                                Live
-                              </span>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  </motion.div>
-                ))}
+                {filtered.map((project) => {
+                  const isPlaceholder = (project as any).__placeholder === true
+                  return (
+                    <motion.div
+                      key={project.id}
+                      layout
+                      {...fadeUp}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                    >
+                      {isPlaceholder ? (
+                        <PlaceholderCard project={project} />
+                      ) : (
+                        <Link to={`/projects/${project.slug}`}>
+                          <RealProjectCard project={project} />
+                        </Link>
+                      )}
+                    </motion.div>
+                  )
+                })}
               </AnimatePresence>
             </motion.div>
           )}
         </div>
       </section>
     </div>
+  )
+}
+
+function RealProjectCard({ project }: { project: Project }) {
+  return (
+    <Card className="group h-full overflow-hidden border-border/40 bg-surface transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/30 hover:shadow-xl hover:shadow-black/20">
+      {project.cover_image ? (
+        <div className="aspect-video overflow-hidden">
+          <img
+            src={project.cover_image}
+            alt={project.title}
+            className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        </div>
+      ) : (
+        <div className="flex aspect-video items-center justify-center bg-gradient-to-br from-gold/10 via-surface to-surface">
+          <span className="text-4xl font-extrabold text-gold/20">{project.title[0]}</span>
+        </div>
+      )}
+      <CardContent className="p-5">
+        <div className="mb-3 flex flex-wrap gap-1.5">
+          {project.tags.slice(0, 3).map((tag) => (
+            <Badge key={tag} variant="secondary" className="bg-secondary/60 text-xs">{tag}</Badge>
+          ))}
+        </div>
+        <h3 className="mb-2 font-semibold leading-snug text-foreground transition-colors group-hover:text-gold">
+          {project.title}
+        </h3>
+        <p className="text-sm leading-[1.75] text-muted-foreground line-clamp-2">{project.description}</p>
+        <div className="mt-4 flex items-center gap-4">
+          {project.github_url && (
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <GitBranch className="size-3.5" />GitHub
+            </span>
+          )}
+          {project.live_url && (
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <ExternalLink className="size-3.5" />Live
+            </span>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function PlaceholderCard({ project }: { project: Project }) {
+  return (
+    <Card className="group h-full overflow-hidden border-border/40 bg-surface opacity-80 transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/30 hover:opacity-100 hover:shadow-xl hover:shadow-black/20">
+      {/* Gradient placeholder image */}
+      <div
+        className="flex aspect-video items-center justify-center"
+        style={{ background: 'linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)' }}
+      >
+        <span className="text-5xl font-extrabold" style={{ color: 'oklch(0.75 0.12 85 / 0.15)' }}>
+          PO
+        </span>
+      </div>
+      <CardContent className="p-5">
+        <div className="mb-3 flex flex-wrap gap-1.5">
+          {project.tags.slice(0, 3).map((tag) => (
+            <Badge key={tag} variant="secondary" className="bg-secondary/60 text-xs">{tag}</Badge>
+          ))}
+          {/* Coming soon badge */}
+          <Badge
+            variant="outline"
+            className="border-gold/30 bg-gold/5 text-xs text-gold"
+          >
+            Coming soon
+          </Badge>
+        </div>
+        <h3 className="mb-2 font-semibold leading-snug text-foreground transition-colors group-hover:text-gold">
+          {project.title}
+        </h3>
+        <p className="text-sm leading-[1.75] text-muted-foreground line-clamp-2">{project.description}</p>
+      </CardContent>
+    </Card>
   )
 }

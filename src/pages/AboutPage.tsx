@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Briefcase, GraduationCap, Star, MapPin, Calendar, Coffee, Lightbulb } from 'lucide-react'
+import {
+  Briefcase, GraduationCap, Star, MapPin, Calendar, Coffee, Lightbulb,
+  Atom, Wind, Server, Database, Plug, GitBranch, Code2, PenTool, Triangle, Container,
+} from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { supabase } from '@/lib/supabase'
@@ -12,25 +15,72 @@ const fadeUp = {
   animate: { opacity: 1, y: 0 },
   transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
 }
-
 const stagger = { animate: { transition: { staggerChildren: 0.09 } } }
 
-const typeIcon = {
-  job: Briefcase,
-  education: GraduationCap,
-  milestone: Star,
+const typeIcon = { job: Briefcase, education: GraduationCap, milestone: Star }
+const typeColor = { job: 'text-blue-400', education: 'text-purple-400', milestone: 'text-gold' }
+
+// TypeScript "TS" text icon rendered as SVG inline
+function TsIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <rect width="24" height="24" rx="3" fill="currentColor" opacity="0.15" />
+      <text x="3" y="17" fontSize="11" fontWeight="700" fill="currentColor" fontFamily="monospace">TS</text>
+    </svg>
+  )
+}
+// Next.js "N" icon
+function NextIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <circle cx="12" cy="12" r="11" stroke="currentColor" strokeWidth="1.5" opacity="0.4" />
+      <text x="7.5" y="17" fontSize="13" fontWeight="800" fill="currentColor" fontFamily="sans-serif">N</text>
+    </svg>
+  )
+}
+// Supabase "S" icon
+function SupabaseIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <rect width="24" height="24" rx="5" fill="currentColor" opacity="0.12" />
+      <text x="6" y="17" fontSize="13" fontWeight="700" fill="currentColor" fontFamily="sans-serif">S</text>
+    </svg>
+  )
 }
 
-const typeColor = {
-  job: 'text-blue-400',
-  education: 'text-purple-400',
-  milestone: 'text-gold',
-}
+type SkillItem = { label: string; Icon: React.ComponentType<{ className?: string }> }
 
-const skills = [
-  { category: 'Frontend', items: ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'Framer Motion'] },
-  { category: 'Backend', items: ['Node.js', 'Express', 'PostgreSQL', 'Supabase', 'REST APIs'] },
-  { category: 'Tools', items: ['Git', 'VS Code', 'Figma', 'Docker', 'Vercel'] },
+const skills: { category: string; items: SkillItem[] }[] = [
+  {
+    category: 'Frontend',
+    items: [
+      { label: 'React', Icon: Atom },
+      { label: 'TypeScript', Icon: TsIcon },
+      { label: 'Next.js', Icon: NextIcon },
+      { label: 'Tailwind CSS', Icon: Wind },
+      { label: 'Framer Motion', Icon: Wind },
+    ],
+  },
+  {
+    category: 'Backend',
+    items: [
+      { label: 'Node.js', Icon: Server },
+      { label: 'Express', Icon: Server },
+      { label: 'PostgreSQL', Icon: Database },
+      { label: 'Supabase', Icon: SupabaseIcon },
+      { label: 'REST APIs', Icon: Plug },
+    ],
+  },
+  {
+    category: 'Tools',
+    items: [
+      { label: 'Git', Icon: GitBranch },
+      { label: 'VS Code', Icon: Code2 },
+      { label: 'Figma', Icon: PenTool },
+      { label: 'Docker', Icon: Container },
+      { label: 'Vercel', Icon: Triangle },
+    ],
+  },
 ]
 
 export function AboutPage() {
@@ -59,29 +109,17 @@ export function AboutPage() {
           <div className="size-[400px] rounded-full bg-gold/5 blur-[100px]" />
         </div>
         <div className="mx-auto max-w-4xl px-6">
-          <motion.div
-            initial="initial"
-            animate="animate"
-            variants={stagger}
-            className="text-center"
-          >
+          <motion.div initial="initial" animate="animate" variants={stagger} className="text-center">
             <motion.p variants={fadeUp} className="mb-3 text-sm font-medium tracking-wide text-gold">
               About Me
             </motion.p>
-            {/* Reduced h1 on mobile, larger on sm+ */}
-            <motion.h1
-              variants={fadeUp}
-              className="mb-5 text-3xl font-extrabold tracking-tight sm:text-5xl"
-            >
+            <motion.h1 variants={fadeUp} className="mb-5 text-3xl font-extrabold tracking-tight sm:text-5xl">
               Vincent Paul Ecaldre
             </motion.h1>
             <motion.p variants={fadeUp} className="text-lg text-muted-foreground sm:text-xl">
               Full Stack Developer based in the Philippines
             </motion.p>
-            <motion.p
-              variants={fadeUp}
-              className="mx-auto mt-5 max-w-2xl text-base leading-[1.8] text-muted-foreground"
-            >
+            <motion.p variants={fadeUp} className="mx-auto mt-5 max-w-2xl text-base leading-[1.8] text-muted-foreground">
               {aboutSettings.bio}
             </motion.p>
           </motion.div>
@@ -91,20 +129,12 @@ export function AboutPage() {
       {/* Philosophy */}
       <section className="border-t border-border/40 py-16 sm:py-24">
         <div className="mx-auto max-w-4xl px-6">
-          <motion.div
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true, margin: '-80px' }}
-            variants={stagger}
-          >
+          <motion.div initial="initial" whileInView="animate" viewport={{ once: true, margin: '-80px' }} variants={stagger}>
             <motion.div variants={fadeUp} className="mb-8">
               <p className="mb-2 text-sm font-medium tracking-wide text-gold">Philosophy</p>
               <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">How I Think</h2>
             </motion.div>
-            <motion.blockquote
-              variants={fadeUp}
-              className="relative border-l-2 border-gold py-2 pl-8"
-            >
+            <motion.blockquote variants={fadeUp} className="relative border-l-2 border-gold py-2 pl-8">
               <Lightbulb className="absolute -left-3.5 -top-1 size-6 rounded-full bg-background p-0.5 text-gold" />
               <p className="text-lg font-medium italic leading-[1.8] text-foreground/90 sm:text-xl">
                 "{aboutSettings.philosophy}"
@@ -117,12 +147,7 @@ export function AboutPage() {
       {/* Skills */}
       <section className="border-t border-border/40 py-16 sm:py-24">
         <div className="mx-auto max-w-4xl px-6">
-          <motion.div
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true, margin: '-80px' }}
-            variants={stagger}
-          >
+          <motion.div initial="initial" whileInView="animate" viewport={{ once: true, margin: '-80px' }} variants={stagger}>
             <motion.div variants={fadeUp} className="mb-8">
               <p className="mb-2 text-sm font-medium tracking-wide text-gold">Expertise</p>
               <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Skills</h2>
@@ -136,12 +161,20 @@ export function AboutPage() {
                 >
                   <Card className="h-full border-border/40 bg-surface transition-colors duration-200 hover:border-gold/20">
                     <CardContent className="p-5">
-                      <h3 className="mb-3 font-semibold text-foreground">{skill.category}</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {skill.items.map((item) => (
-                          <Badge key={item} variant="secondary" className="bg-secondary/60 text-xs">
-                            {item}
-                          </Badge>
+                      <h3 className="mb-4 font-semibold text-foreground">{skill.category}</h3>
+                      <div className="flex flex-col gap-2">
+                        {skill.items.map(({ label, Icon }) => (
+                          <motion.div
+                            key={label}
+                            whileHover={{
+                              scale: 1.05,
+                              transition: { duration: 0.12 },
+                            }}
+                            className="group flex cursor-default items-center gap-2.5 rounded-lg border border-border/40 bg-background/50 px-3 py-2 text-sm text-muted-foreground transition-all duration-150 hover:border-gold/40 hover:text-foreground hover:shadow-[0_0_8px_0px_oklch(0.75_0.12_85_/_0.25)]"
+                          >
+                            <Icon className="size-4 shrink-0 text-gold/70 transition-colors group-hover:text-gold" />
+                            {label}
+                          </motion.div>
                         ))}
                       </div>
                     </CardContent>
@@ -156,12 +189,7 @@ export function AboutPage() {
       {/* Fun Facts */}
       <section className="border-t border-border/40 py-16 sm:py-24">
         <div className="mx-auto max-w-4xl px-6">
-          <motion.div
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true, margin: '-80px' }}
-            variants={stagger}
-          >
+          <motion.div initial="initial" whileInView="animate" viewport={{ once: true, margin: '-80px' }} variants={stagger}>
             <motion.div variants={fadeUp} className="mb-8">
               <p className="mb-2 text-sm font-medium tracking-wide text-gold">Personal</p>
               <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Fun Facts</h2>
@@ -189,17 +217,11 @@ export function AboutPage() {
       {journey.length > 0 && (
         <section className="border-t border-border/40 py-16 sm:py-24">
           <div className="mx-auto max-w-4xl px-6">
-            <motion.div
-              initial="initial"
-              whileInView="animate"
-              viewport={{ once: true, margin: '-80px' }}
-              variants={stagger}
-            >
+            <motion.div initial="initial" whileInView="animate" viewport={{ once: true, margin: '-80px' }} variants={stagger}>
               <motion.div variants={fadeUp} className="mb-10">
                 <p className="mb-2 text-sm font-medium tracking-wide text-gold">Timeline</p>
                 <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">My Journey</h2>
               </motion.div>
-
               <div className="relative">
                 <div className="absolute left-4 top-0 h-full w-px bg-border/40 sm:left-6" />
                 <motion.div variants={stagger} className="space-y-7">
@@ -207,41 +229,24 @@ export function AboutPage() {
                     const Icon = typeIcon[item.type]
                     const color = typeColor[item.type]
                     return (
-                      <motion.div
-                        key={item.id}
-                        variants={fadeUp}
-                        className="relative flex gap-6 pl-12 sm:pl-16"
-                      >
-                        <div
-                          className={cn(
-                            'absolute left-0 flex size-8 items-center justify-center rounded-full border border-border/40 bg-surface sm:size-12',
-                            color
-                          )}
-                        >
+                      <motion.div key={item.id} variants={fadeUp} className="relative flex gap-6 pl-12 sm:pl-16">
+                        <div className={cn('absolute left-0 flex size-8 items-center justify-center rounded-full border border-border/40 bg-surface sm:size-12', color)}>
                           <Icon className="size-3.5 sm:size-4" />
                         </div>
                         <div className="flex-1 pb-4">
                           <div className="mb-1 flex flex-wrap items-center gap-2">
                             <h3 className="font-semibold text-foreground">{item.title}</h3>
                             {item.current && (
-                              <Badge className="border-gold/30 bg-gold/10 text-xs text-gold">
-                                Current
-                              </Badge>
+                              <Badge className="border-gold/30 bg-gold/10 text-xs text-gold">Current</Badge>
                             )}
                           </div>
-                          {item.company && (
-                            <p className="text-sm font-medium text-muted-foreground">{item.company}</p>
-                          )}
+                          {item.company && <p className="text-sm font-medium text-muted-foreground">{item.company}</p>}
                           <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-muted-foreground/60">
                             {(item.start_date || item.end_date) && (
                               <span className="flex items-center gap-1">
                                 <Calendar className="size-3" />
                                 {item.start_date}
-                                {item.end_date
-                                  ? ` — ${item.end_date}`
-                                  : item.current
-                                  ? ' — Present'
-                                  : ''}
+                                {item.end_date ? ` — ${item.end_date}` : item.current ? ' — Present' : ''}
                               </span>
                             )}
                             {item.location && (
@@ -252,9 +257,7 @@ export function AboutPage() {
                             )}
                           </div>
                           {item.description && (
-                            <p className="mt-2 text-sm leading-[1.75] text-muted-foreground">
-                              {item.description}
-                            </p>
+                            <p className="mt-2 text-sm leading-[1.75] text-muted-foreground">{item.description}</p>
                           )}
                         </div>
                       </motion.div>

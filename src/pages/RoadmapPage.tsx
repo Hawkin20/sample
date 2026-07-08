@@ -17,20 +17,37 @@ const stagger = { animate: { transition: { staggerChildren: 0.07 } } }
 
 function EmptyColumnIllustration() {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border/30 px-4 py-8">
+    <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border/30 px-4 py-10">
+      {/* Gold-outline geometric SVG */}
       <svg
-        viewBox="0 0 64 64"
+        viewBox="0 0 72 72"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="size-10 opacity-25"
+        className="size-12 opacity-60"
         aria-hidden="true"
       >
-        <rect x="8" y="16" width="48" height="36" rx="5" stroke="currentColor" strokeWidth="3" className="text-muted-foreground" />
-        <rect x="8" y="12" width="22" height="10" rx="3" stroke="currentColor" strokeWidth="3" className="text-muted-foreground" />
-        <line x1="20" y1="31" x2="44" y2="31" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-muted-foreground" />
-        <line x1="20" y1="39" x2="36" y2="39" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className="text-muted-foreground" />
+        {/* Outer diamond */}
+        <polygon
+          points="36,6 66,36 36,66 6,36"
+          stroke="oklch(0.75 0.12 85)"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+          fill="none"
+          opacity="0.4"
+        />
+        {/* Inner diamond */}
+        <polygon
+          points="36,18 54,36 36,54 18,36"
+          stroke="oklch(0.75 0.12 85)"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+          fill="none"
+          opacity="0.25"
+        />
+        {/* Centre dot */}
+        <circle cx="36" cy="36" r="3" fill="oklch(0.75 0.12 85)" opacity="0.5" />
       </svg>
-      <p className="text-xs text-muted-foreground/50">Nothing here yet</p>
+      <p className="text-center text-xs text-muted-foreground/60">No items in this column yet</p>
     </div>
   )
 }
@@ -87,8 +104,7 @@ export function RoadmapPage() {
       })
   }, [])
 
-  const byStatus = (status: Roadmap['status']) =>
-    items.filter((i) => i.status === status)
+  const byStatus = (status: Roadmap['status']) => items.filter((i) => i.status === status)
 
   return (
     <div className="pt-20">
@@ -150,9 +166,21 @@ export function RoadmapPage() {
                 const colItems = byStatus(col.status)
                 return (
                   <motion.div key={col.status} variants={fadeUp}>
-                    {/* Column Header */}
+                    {/* Column Header — subtle pulse animation via CSS */}
                     <div className="mb-4 flex items-center justify-between">
-                      <div className={cn('flex items-center gap-2 text-sm font-semibold', col.color)}>
+                      <div
+                        className={cn(
+                          'flex items-center gap-2 text-sm font-semibold',
+                          col.color,
+                          // pulse only on non-empty columns
+                          colItems.length > 0 && col.status === 'in_progress' && 'animate-pulse'
+                        )}
+                        style={
+                          colItems.length > 0 && col.status === 'in_progress'
+                            ? { animationDuration: '2.5s' }
+                            : undefined
+                        }
+                      >
                         <Icon className="size-4" />
                         {col.label}
                       </div>

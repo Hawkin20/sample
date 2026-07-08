@@ -43,7 +43,8 @@ export function HomePage() {
   return (
     <div className="relative">
       {/* ── Hero ─────────────────────────────────────────── */}
-      <section className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-6 pt-24 pb-16">
+      {/* Reduced from min-h-svh + pt-24 pb-16 → min-h-[80svh] + pt-20 pb-12 (≈20% less vertical) */}
+      <section className="relative flex min-h-[80svh] flex-col items-center justify-center overflow-hidden px-6 pt-20 pb-12">
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="size-[600px] rounded-full bg-gold/5 blur-[120px]" />
         </div>
@@ -54,25 +55,26 @@ export function HomePage() {
           animate="animate"
           variants={stagger}
         >
-          <motion.div variants={fadeUp}>
-            <Badge
-              variant="outline"
-              className="mb-7 border-gold/30 bg-gold/5 text-gold"
-            >
-              <Zap className="mr-1.5 size-3" />
-              Available for work
-            </Badge>
-          </motion.div>
-
-          {/* Reduced on mobile, large on sm+ */}
+          {/* Name first, badge immediately after — no large gap */}
           <motion.h1
             variants={fadeUp}
-            className="mb-6 text-4xl font-extrabold tracking-tight sm:text-6xl md:text-7xl"
+            className="mb-3 text-4xl font-extrabold tracking-tight sm:text-6xl md:text-7xl"
           >
             Vincent Paul
             <br />
             <span className="text-gradient-gold">{heroSettings.heading}</span>
           </motion.h1>
+
+          {/* Badge sits directly below the name */}
+          <motion.div variants={fadeUp} className="mb-6 flex justify-center">
+            <Badge
+              variant="outline"
+              className="border-gold/30 bg-gold/5 text-gold"
+            >
+              <Zap className="mr-1.5 size-3" />
+              Available for work
+            </Badge>
+          </motion.div>
 
           <motion.p
             variants={fadeUp}
@@ -108,7 +110,7 @@ export function HomePage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.3 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
         >
           <div className="flex h-10 w-6 items-start justify-center rounded-full border border-border/40 p-1.5">
             <motion.div
@@ -137,9 +139,7 @@ export function HomePage() {
               { value: '100%', label: 'Passion' },
             ].map((stat) => (
               <motion.div key={stat.label} variants={fadeUp} className="text-center">
-                <div className="text-3xl font-extrabold text-gradient-gold sm:text-4xl">
-                  {stat.value}
-                </div>
+                <div className="text-3xl font-extrabold text-gradient-gold sm:text-4xl">{stat.value}</div>
                 <div className="mt-1.5 text-sm text-muted-foreground">{stat.label}</div>
               </motion.div>
             ))}
@@ -159,9 +159,7 @@ export function HomePage() {
             >
               <motion.div variants={fadeUp} className="mb-10">
                 <p className="mb-2 text-sm font-medium tracking-wide text-gold">Featured Work</p>
-                <h2 className="text-2xl font-bold tracking-tight sm:text-4xl">
-                  Selected Projects
-                </h2>
+                <h2 className="text-2xl font-bold tracking-tight sm:text-4xl">Selected Projects</h2>
               </motion.div>
 
               <motion.div variants={stagger} className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -212,9 +210,7 @@ export function HomePage() {
                     whileHover={{ y: -3, transition: { duration: 0.12 } }}
                     className="flex cursor-default items-center gap-2 rounded-lg border border-border/40 bg-surface px-4 py-2 text-sm text-muted-foreground transition-colors duration-150 hover:border-gold/30 hover:text-foreground"
                   >
-                    {tech.icon_url && (
-                      <img src={tech.icon_url} alt={tech.name} className="size-4" />
-                    )}
+                    {tech.icon_url && <img src={tech.icon_url} alt={tech.name} className="size-4" />}
                     {tech.name}
                   </motion.div>
                 ))}
@@ -233,17 +229,10 @@ export function HomePage() {
             viewport={{ once: true, margin: '-80px' }}
             variants={stagger}
           >
-            <motion.h2
-              variants={fadeUp}
-              className="mb-4 text-2xl font-bold tracking-tight sm:text-4xl"
-            >
-              Let's build something{' '}
-              <span className="text-gradient-gold">together</span>
+            <motion.h2 variants={fadeUp} className="mb-4 text-2xl font-bold tracking-tight sm:text-4xl">
+              Let's build something <span className="text-gradient-gold">together</span>
             </motion.h2>
-            <motion.p
-              variants={fadeUp}
-              className="mb-8 text-base leading-[1.75] text-muted-foreground"
-            >
+            <motion.p variants={fadeUp} className="mb-8 text-base leading-[1.75] text-muted-foreground">
               Open to new opportunities and exciting projects.
             </motion.p>
             <motion.div variants={fadeUp}>
@@ -281,28 +270,22 @@ function ProjectCard({ project }: { project: Project }) {
         <CardContent className="p-5">
           <div className="mb-3 flex flex-wrap gap-1.5">
             {project.tags.slice(0, 3).map((tag) => (
-              <Badge key={tag} variant="secondary" className="bg-secondary/60 text-xs">
-                {tag}
-              </Badge>
+              <Badge key={tag} variant="secondary" className="bg-secondary/60 text-xs">{tag}</Badge>
             ))}
           </div>
           <h3 className="mb-2 font-semibold leading-snug text-foreground transition-colors group-hover:text-gold">
             {project.title}
           </h3>
-          <p className="text-sm leading-[1.75] text-muted-foreground line-clamp-2">
-            {project.description}
-          </p>
+          <p className="text-sm leading-[1.75] text-muted-foreground line-clamp-2">{project.description}</p>
           <div className="mt-4 flex items-center gap-4">
             {project.github_url && (
               <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <GitBranch className="size-3.5" />
-                GitHub
+                <GitBranch className="size-3.5" />GitHub
               </span>
             )}
             {project.live_url && (
               <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <ExternalLink className="size-3.5" />
-                Live
+                <ExternalLink className="size-3.5" />Live
               </span>
             )}
           </div>
