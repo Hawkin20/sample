@@ -22,7 +22,7 @@ import { AdminLogs } from '@/pages/admin/AdminLogs'
 
 export default function App() {
   return (
-    <ThemeProvider defaultTheme="dark" storageKey="portfolio-theme">
+    <ThemeProvider defaultTheme="dark" storageKey="portfolio-theme" disableTransitionOnChange={false}>
       <AuthProvider>
         <BrowserRouter>
           <Routes>

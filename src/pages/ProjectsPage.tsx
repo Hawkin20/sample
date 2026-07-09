@@ -16,26 +16,45 @@ const fadeUp = {
   transition: { duration: 0.4 },
 }
 
-// Placeholder project — always shown when no real projects match
-const PLACEHOLDER_PROJECT = {
-  id: '__placeholder__',
-  title: 'Palacio de Oro',
-  slug: '__placeholder__',
-  description: 'A premium digital experience built with React and Supabase',
-  long_description: null,
-  status: 'published' as const,
-  featured: false,
-  cover_image: null,
-  github_url: null,
-  live_url: null,
-  tags: ['React', 'Supabase', 'Tailwind'],
-  order_index: 9999,
-  created_at: '',
-  updated_at: '',
-  __placeholder: true,
-} as Project & { __placeholder?: boolean }
-
 function EmptyProjectsIllustration() {
+  return (
+    <div className="py-24 text-center">
+      <svg
+        viewBox="0 0 120 120"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="mx-auto mb-6 size-24 opacity-40"
+        aria-hidden="true"
+      >
+        {/* Outer hexagon */}
+        <polygon
+          points="60,8 104,32 104,88 60,112 16,88 16,32"
+          stroke="oklch(0.75 0.12 85)"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+          fill="none"
+          opacity="0.5"
+        />
+        {/* Inner hexagon */}
+        <polygon
+          points="60,26 88,41 88,71 60,86 32,71 32,41"
+          stroke="oklch(0.75 0.12 85)"
+          strokeWidth="1.5"
+          strokeLinejoin="round"
+          fill="none"
+          opacity="0.3"
+        />
+        {/* Centre cross */}
+        <line x1="60" y1="50" x2="60" y2="70" stroke="oklch(0.75 0.12 85)" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
+        <line x1="50" y1="60" x2="70" y2="60" stroke="oklch(0.75 0.12 85)" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
+      </svg>
+      <p className="text-base font-medium text-foreground">No projects yet</p>
+      <p className="mt-1.5 text-sm text-muted-foreground">Check back soon — something is being built.</p>
+    </div>
+  )
+}
+
+function EmptySearchIllustration() {
   return (
     <div className="py-24 text-center">
       <svg
@@ -78,12 +97,12 @@ export function ProjectsPage() {
   }, [])
 
   const allTags = useMemo(() => {
-    const tags = new Set([...projects.flatMap((p) => p.tags), ...PLACEHOLDER_PROJECT.tags])
+    const tags = new Set(projects.flatMap((p) => p.tags))
     return Array.from(tags).sort()
   }, [projects])
 
   const filtered = useMemo(() => {
-    const real = projects.filter((p) => {
+    return projects.filter((p) => {
       const matchSearch =
         !search ||
         p.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -91,20 +110,9 @@ export function ProjectsPage() {
       const matchTag = !activeTag || p.tags.includes(activeTag)
       return matchSearch && matchTag
     })
-
-    // Always include placeholder if it matches active filters
-    const placeholderMatchesSearch =
-      !search ||
-      PLACEHOLDER_PROJECT.title.toLowerCase().includes(search.toLowerCase()) ||
-      PLACEHOLDER_PROJECT.description?.toLowerCase().includes(search.toLowerCase())
-    const placeholderMatchesTag =
-      !activeTag || PLACEHOLDER_PROJECT.tags.includes(activeTag)
-
-    if (placeholderMatchesSearch && placeholderMatchesTag) {
-      return [...real, PLACEHOLDER_PROJECT as Project]
-    }
-    return real
   }, [projects, search, activeTag])
+
+  const isFiltering = search.length > 0 || activeTag !== null
 
   return (
     <div className="pt-20">
@@ -153,35 +161,37 @@ export function ProjectsPage() {
                 className="border-border/40 bg-secondary/50 pl-9"
               />
             </div>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                size="sm"
-                variant={activeTag === null ? 'default' : 'outline'}
-                onClick={() => setActiveTag(null)}
-                className={
-                  activeTag === null
-                    ? 'bg-gold text-gold-foreground transition-all hover:-translate-y-px hover:bg-gold/90'
-                    : 'border-border/40 transition-all hover:-translate-y-px'
-                }
-              >
-                All
-              </Button>
-              {allTags.map((tag) => (
+            {allTags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
                 <Button
-                  key={tag}
                   size="sm"
-                  variant={activeTag === tag ? 'default' : 'outline'}
-                  onClick={() => setActiveTag(tag === activeTag ? null : tag)}
+                  variant={activeTag === null ? 'default' : 'outline'}
+                  onClick={() => setActiveTag(null)}
                   className={
-                    activeTag === tag
+                    activeTag === null
                       ? 'bg-gold text-gold-foreground transition-all hover:-translate-y-px hover:bg-gold/90'
-                      : 'border-border/40 text-muted-foreground transition-all hover:-translate-y-px hover:text-foreground'
+                      : 'border-border/40 transition-all hover:-translate-y-px'
                   }
                 >
-                  {tag}
+                  All
                 </Button>
-              ))}
-            </div>
+                {allTags.map((tag) => (
+                  <Button
+                    key={tag}
+                    size="sm"
+                    variant={activeTag === tag ? 'default' : 'outline'}
+                    onClick={() => setActiveTag(tag === activeTag ? null : tag)}
+                    className={
+                      activeTag === tag
+                        ? 'bg-gold text-gold-foreground transition-all hover:-translate-y-px hover:bg-gold/90'
+                        : 'border-border/40 text-muted-foreground transition-all hover:-translate-y-px hover:text-foreground'
+                    }
+                  >
+                    {tag}
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -202,112 +212,67 @@ export function ProjectsPage() {
                 </Card>
               ))}
             </div>
-          ) : filtered.length === 0 ? (
+          ) : projects.length === 0 && !isFiltering ? (
             <EmptyProjectsIllustration />
+          ) : filtered.length === 0 ? (
+            <EmptySearchIllustration />
           ) : (
             <motion.div layout className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               <AnimatePresence mode="popLayout">
-                {filtered.map((project) => {
-                  const isPlaceholder = (project as any).__placeholder === true
-                  return (
-                    <motion.div
-                      key={project.id}
-                      layout
-                      {...fadeUp}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                    >
-                      {isPlaceholder ? (
-                        <PlaceholderCard project={project} />
-                      ) : (
-                        <Link to={`/projects/${project.slug}`}>
-                          <RealProjectCard project={project} />
-                        </Link>
-                      )}
-                    </motion.div>
-                  )
-                })}
+                {filtered.map((project) => (
+                  <motion.div
+                    key={project.id}
+                    layout
+                    {...fadeUp}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                  >
+                    <Link to={`/projects/${project.slug}`}>
+                      <Card className="group h-full overflow-hidden border-border/40 bg-surface transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/30 hover:shadow-xl hover:shadow-black/20">
+                        {project.cover_image ? (
+                          <div className="aspect-video overflow-hidden">
+                            <img
+                              src={project.cover_image}
+                              alt={project.title}
+                              className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                          </div>
+                        ) : (
+                          <div className="flex aspect-video items-center justify-center bg-gradient-to-br from-gold/10 via-surface to-surface">
+                            <span className="text-4xl font-extrabold text-gold/20">{project.title[0]}</span>
+                          </div>
+                        )}
+                        <CardContent className="p-5">
+                          <div className="mb-3 flex flex-wrap gap-1.5">
+                            {project.tags.slice(0, 3).map((tag) => (
+                              <Badge key={tag} variant="secondary" className="bg-secondary/60 text-xs">{tag}</Badge>
+                            ))}
+                          </div>
+                          <h3 className="mb-2 font-semibold leading-snug text-foreground transition-colors group-hover:text-gold">
+                            {project.title}
+                          </h3>
+                          <p className="text-sm leading-[1.75] text-muted-foreground line-clamp-2">{project.description}</p>
+                          <div className="mt-4 flex items-center gap-4">
+                            {project.github_url && (
+                              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <GitBranch className="size-3.5" />GitHub
+                              </span>
+                            )}
+                            {project.live_url && (
+                              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <ExternalLink className="size-3.5" />Live
+                              </span>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+                ))}
               </AnimatePresence>
             </motion.div>
           )}
         </div>
       </section>
     </div>
-  )
-}
-
-function RealProjectCard({ project }: { project: Project }) {
-  return (
-    <Card className="group h-full overflow-hidden border-border/40 bg-surface transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/30 hover:shadow-xl hover:shadow-black/20">
-      {project.cover_image ? (
-        <div className="aspect-video overflow-hidden">
-          <img
-            src={project.cover_image}
-            alt={project.title}
-            className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        </div>
-      ) : (
-        <div className="flex aspect-video items-center justify-center bg-gradient-to-br from-gold/10 via-surface to-surface">
-          <span className="text-4xl font-extrabold text-gold/20">{project.title[0]}</span>
-        </div>
-      )}
-      <CardContent className="p-5">
-        <div className="mb-3 flex flex-wrap gap-1.5">
-          {project.tags.slice(0, 3).map((tag) => (
-            <Badge key={tag} variant="secondary" className="bg-secondary/60 text-xs">{tag}</Badge>
-          ))}
-        </div>
-        <h3 className="mb-2 font-semibold leading-snug text-foreground transition-colors group-hover:text-gold">
-          {project.title}
-        </h3>
-        <p className="text-sm leading-[1.75] text-muted-foreground line-clamp-2">{project.description}</p>
-        <div className="mt-4 flex items-center gap-4">
-          {project.github_url && (
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <GitBranch className="size-3.5" />GitHub
-            </span>
-          )}
-          {project.live_url && (
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <ExternalLink className="size-3.5" />Live
-            </span>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-function PlaceholderCard({ project }: { project: Project }) {
-  return (
-    <Card className="group h-full overflow-hidden border-border/40 bg-surface opacity-80 transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/30 hover:opacity-100 hover:shadow-xl hover:shadow-black/20">
-      {/* Gradient placeholder image */}
-      <div
-        className="flex aspect-video items-center justify-center"
-        style={{ background: 'linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%)' }}
-      >
-        <span className="text-5xl font-extrabold" style={{ color: 'oklch(0.75 0.12 85 / 0.15)' }}>
-          PO
-        </span>
-      </div>
-      <CardContent className="p-5">
-        <div className="mb-3 flex flex-wrap gap-1.5">
-          {project.tags.slice(0, 3).map((tag) => (
-            <Badge key={tag} variant="secondary" className="bg-secondary/60 text-xs">{tag}</Badge>
-          ))}
-          {/* Coming soon badge */}
-          <Badge
-            variant="outline"
-            className="border-gold/30 bg-gold/5 text-xs text-gold"
-          >
-            Coming soon
-          </Badge>
-        </div>
-        <h3 className="mb-2 font-semibold leading-snug text-foreground transition-colors group-hover:text-gold">
-          {project.title}
-        </h3>
-        <p className="text-sm leading-[1.75] text-muted-foreground line-clamp-2">{project.description}</p>
-      </CardContent>
-    </Card>
   )
 }

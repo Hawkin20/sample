@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Sun, Moon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/contexts/AuthContext'
+import { useTheme } from '@/components/theme-provider'
 import { cn } from '@/lib/utils'
 
 const navLinks = [
@@ -20,6 +21,52 @@ const navLinks = [
   { href: '/projects', label: 'Projects' },
   { href: '/roadmap', label: 'Roadmap' },
 ]
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme()
+
+  // Resolve actual displayed theme (treat "system" as dark per default)
+  const isDark =
+    theme === 'dark' ||
+    (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+  const toggle = () => setTheme(isDark ? 'light' : 'dark')
+
+  return (
+    <button
+      onClick={toggle}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      className={cn(
+        'relative flex size-8 items-center justify-center rounded-md',
+        'text-muted-foreground transition-colors duration-200',
+        'hover:bg-secondary/60 hover:text-foreground',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+      )}
+      style={{ overflow: 'hidden' }}
+    >
+      {/* Sun icon — visible in dark mode, hidden in light */}
+      <Sun
+        className="absolute size-4"
+        style={{
+          transition: 'transform 400ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms cubic-bezier(0.4, 0, 0.2, 1)',
+          transform: isDark ? 'rotate(0deg) scale(1)' : 'rotate(180deg) scale(0.6)',
+          opacity: isDark ? 1 : 0,
+          pointerEvents: 'none',
+        }}
+      />
+      {/* Moon icon — visible in light mode, hidden in dark */}
+      <Moon
+        className="absolute size-4"
+        style={{
+          transition: 'transform 400ms cubic-bezier(0.4, 0, 0.2, 1), opacity 400ms cubic-bezier(0.4, 0, 0.2, 1)',
+          transform: isDark ? 'translateX(10px) scale(0.8)' : 'translateX(0px) scale(1)',
+          opacity: isDark ? 0 : 1,
+          pointerEvents: 'none',
+        }}
+      />
+    </button>
+  )
+}
 
 export function Navbar() {
   const { user, profile, isAdmin, signOut } = useAuth()
@@ -76,11 +123,13 @@ export function Navbar() {
         </div>
 
         {/* Right side */}
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-2 md:flex">
+          <ThemeToggle />
+
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-full outline-none ring-ring transition-opacity hover:opacity-80 focus-visible:ring-2">
+                <button className="flex items-center gap-2 rounded-full outline-none ring-ring transition-opacity hover:opacity-80 focus-visible:ring-2 ml-1">
                   <Avatar className="size-8">
                     <AvatarImage src={profile?.avatar_url ?? undefined} />
                     <AvatarFallback className="bg-secondary text-xs">
@@ -117,14 +166,17 @@ export function Navbar() {
           )}
         </div>
 
-        {/* Mobile toggle */}
-        <button
-          className="flex items-center justify-center rounded-md p-2 text-muted-foreground transition-all duration-200 hover:text-foreground md:hidden"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          aria-label="Toggle menu"
-        >
-          {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-        </button>
+        {/* Mobile right: theme toggle + hamburger */}
+        <div className="flex items-center gap-1 md:hidden">
+          <ThemeToggle />
+          <button
+            className="flex items-center justify-center rounded-md p-2 text-muted-foreground transition-all duration-200 hover:text-foreground"
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+          </button>
+        </div>
       </nav>
 
       {/* Mobile menu */}
