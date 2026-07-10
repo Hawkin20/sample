@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom'
+import { motion, AnimatePresence, useMotionValueEvent, useScroll, useMotionValue } from 'framer-motion'
 import { Menu, X, Sun, Moon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -24,8 +24,6 @@ const navLinks = [
 
 function ThemeToggle() {
   const { theme, setTheme } = useTheme()
-
-  // Resolve actual displayed theme (treat "system" as dark per default)
   const isDark =
     theme === 'dark' ||
     (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -44,7 +42,6 @@ function ThemeToggle() {
       )}
       style={{ overflow: 'hidden' }}
     >
-      {/* Sun icon — visible in dark mode, hidden in light */}
       <Sun
         className="absolute size-4"
         style={{
@@ -54,7 +51,6 @@ function ThemeToggle() {
           pointerEvents: 'none',
         }}
       />
-      {/* Moon icon — visible in light mode, hidden in dark */}
       <Moon
         className="absolute size-4"
         style={{
@@ -73,19 +69,37 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
 
+  // Hide on scroll down, show on scroll up
+  const { scrollY } = useScroll()
+  const hiddenY = useMotionValue(0)
+  const [hidden, setHidden] = useState(false)
+
+  useMotionValueEvent(scrollY, 'change', (latest) => {
+    const prev = scrollY.getPrevious() ?? 0
+    setScrolled(latest > 20)
+    if (latest > prev && latest > 120 && !mobileOpen) {
+      setHidden(true)
+    } else {
+      setHidden(false)
+    }
+  })
+
+  // Close mobile menu on route change
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', handler, { passive: true })
-    return () => window.removeEventListener('scroll', handler)
-  }, [])
+    setMobileOpen(false)
+  }, [location.pathname])
 
   return (
-    <header
+    <motion.header
+      style={{ y: hiddenY }}
+      animate={{ y: hidden ? '-100%' : '0%' }}
+      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
       className={cn(
         'fixed top-0 z-50 w-full transition-all duration-300',
         scrolled
-          ? 'border-b border-border/50 bg-background/80 backdrop-blur-xl'
+          ? 'border-b border-border/40 bg-background/70 backdrop-blur-xl'
           : 'bg-transparent'
       )}
     >
@@ -101,8 +115,8 @@ export function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop nav */}
-        <div className="hidden items-center gap-8 md:flex">
+        {/* Desktop nav with animated underline */}
+        <div className="hidden items-center gap-1 md:flex">
           {navLinks.map((link) => (
             <NavLink
               key={link.href}
@@ -110,14 +124,24 @@ export function Navbar() {
               end={link.href === '/'}
               className={({ isActive }) =>
                 cn(
-                  'text-sm font-medium transition-all duration-200 hover:-translate-y-px hover:opacity-100',
+                  'group relative rounded-md px-3 py-2 text-sm font-medium transition-all duration-200',
                   isActive
                     ? 'text-foreground'
-                    : 'text-muted-foreground opacity-70 hover:text-foreground'
+                    : 'text-muted-foreground opacity-70 hover:text-foreground hover:opacity-100'
                 )
               }
             >
-              {link.label}
+              {({ isActive }) => (
+                <>
+                  {link.label}
+                  <span
+                    className={cn(
+                      'absolute bottom-0.5 left-1/2 h-px -translate-x-1/2 bg-gold transition-all duration-300',
+                      isActive ? 'w-4 opacity-100' : 'w-0 opacity-0 group-hover:w-3 group-hover:opacity-60',
+                    )}
+                  />
+                </>
+              )}
             </NavLink>
           ))}
         </div>
@@ -125,7 +149,6 @@ export function Navbar() {
         {/* Right side */}
         <div className="hidden items-center gap-2 md:flex">
           <ThemeToggle />
-
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -159,7 +182,7 @@ export function Navbar() {
               size="sm"
               variant="outline"
               onClick={() => navigate('/login')}
-              className="border-border/50 text-muted-foreground transition-all duration-200 hover:-translate-y-px hover:border-gold/40 hover:text-foreground"
+              className="btn-glass border-border/50 text-muted-foreground hover:text-foreground"
             >
               Sign In
             </Button>
@@ -186,33 +209,39 @@ export function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className="border-b border-border/50 bg-background/95 backdrop-blur-xl md:hidden"
+            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden border-b border-border/50 bg-background/95 backdrop-blur-xl md:hidden"
           >
             <div className="flex flex-col gap-0.5 px-6 pb-5 pt-2">
-              {navLinks.map((link) => (
-                <NavLink
+              {navLinks.map((link, i) => (
+                <motion.div
                   key={link.href}
-                  to={link.href}
-                  end={link.href === '/'}
-                  onClick={() => setMobileOpen(false)}
-                  className={({ isActive }) =>
-                    cn(
-                      'rounded-md px-2 py-2.5 text-sm font-medium transition-all duration-150',
-                      isActive
-                        ? 'text-foreground'
-                        : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
-                    )
-                  }
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 }}
                 >
-                  {link.label}
-                </NavLink>
+                  <NavLink
+                    to={link.href}
+                    end={link.href === '/'}
+                    onClick={() => setMobileOpen(false)}
+                    className={({ isActive }) =>
+                      cn(
+                        'rounded-md px-2 py-2.5 text-sm font-medium transition-all duration-150',
+                        isActive
+                          ? 'text-foreground'
+                          : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
+                      )
+                    }
+                  >
+                    {link.label}
+                  </NavLink>
+                </motion.div>
               ))}
               {!user && (
                 <Button
                   size="sm"
                   variant="outline"
-                  className="mt-3 w-fit border-border/50 hover:border-gold/40"
+                  className="btn-glass mt-3 w-fit border-border/50 hover:border-gold/40"
                   onClick={() => { setMobileOpen(false); navigate('/login') }}
                 >
                   Sign In
@@ -222,6 +251,6 @@ export function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </motion.header>
   )
 }

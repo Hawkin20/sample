@@ -1,7 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Search, ExternalLink, GitBranch } from 'lucide-react'
+import { Search, ExternalLink, GitBranch, ArrowRight } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -9,12 +9,8 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { supabase } from '@/lib/supabase'
 import type { Project } from '@/types/database'
-
-const fadeUp = {
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.4 },
-}
+import { BackgroundEffects } from '@/components/effects/BackgroundEffects'
+import { animVariants, animTransition } from '@/components/effects/AnimatedSection'
 
 function EmptyProjectsIllustration() {
   return (
@@ -26,25 +22,8 @@ function EmptyProjectsIllustration() {
         className="mx-auto mb-6 size-24 opacity-40"
         aria-hidden="true"
       >
-        {/* Outer hexagon */}
-        <polygon
-          points="60,8 104,32 104,88 60,112 16,88 16,32"
-          stroke="oklch(0.75 0.12 85)"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-          fill="none"
-          opacity="0.5"
-        />
-        {/* Inner hexagon */}
-        <polygon
-          points="60,26 88,41 88,71 60,86 32,71 32,41"
-          stroke="oklch(0.75 0.12 85)"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-          fill="none"
-          opacity="0.3"
-        />
-        {/* Centre cross */}
+        <polygon points="60,8 104,32 104,88 60,112 16,88 16,32" stroke="oklch(0.75 0.12 85)" strokeWidth="1.5" strokeLinejoin="round" fill="none" opacity="0.5" />
+        <polygon points="60,26 88,41 88,71 60,86 32,71 32,41" stroke="oklch(0.75 0.12 85)" strokeWidth="1.5" strokeLinejoin="round" fill="none" opacity="0.3" />
         <line x1="60" y1="50" x2="60" y2="70" stroke="oklch(0.75 0.12 85)" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
         <line x1="50" y1="60" x2="70" y2="60" stroke="oklch(0.75 0.12 85)" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
       </svg>
@@ -117,14 +96,13 @@ export function ProjectsPage() {
   return (
     <div className="pt-20">
       {/* Hero */}
-      <section className="relative overflow-hidden py-20 text-center sm:py-28">
-        <div className="pointer-events-none absolute inset-0 flex items-start justify-center pt-10">
-          <div className="size-[400px] rounded-full bg-gold/5 blur-[100px]" />
-        </div>
-        <div className="mx-auto max-w-2xl px-6">
+      <section className="relative overflow-hidden py-24 text-center sm:py-32">
+        <BackgroundEffects />
+        <div className="relative z-10 mx-auto max-w-2xl px-6">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={animTransition}
             className="mb-3 text-sm font-medium tracking-wide text-gold"
           >
             Portfolio
@@ -132,15 +110,15 @@ export function ProjectsPage() {
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
+            transition={{ ...animTransition, delay: 0.05 }}
             className="mb-4 text-3xl font-extrabold tracking-tight sm:text-5xl"
           >
-            Projects
+            <span className="text-gradient-gold">Projects</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ ...animTransition, delay: 0.1 }}
             className="text-base leading-[1.75] text-muted-foreground"
           >
             A collection of things I've built — from side projects to production apps.
@@ -169,8 +147,8 @@ export function ProjectsPage() {
                   onClick={() => setActiveTag(null)}
                   className={
                     activeTag === null
-                      ? 'bg-gold text-gold-foreground transition-all hover:-translate-y-px hover:bg-gold/90'
-                      : 'border-border/40 transition-all hover:-translate-y-px'
+                      ? 'btn-gold'
+                      : 'btn-glass border-border/40 text-muted-foreground hover:text-foreground'
                   }
                 >
                   All
@@ -183,8 +161,8 @@ export function ProjectsPage() {
                     onClick={() => setActiveTag(tag === activeTag ? null : tag)}
                     className={
                       activeTag === tag
-                        ? 'bg-gold text-gold-foreground transition-all hover:-translate-y-px hover:bg-gold/90'
-                        : 'border-border/40 text-muted-foreground transition-all hover:-translate-y-px hover:text-foreground'
+                        ? 'btn-gold'
+                        : 'btn-glass border-border/40 text-muted-foreground hover:text-foreground'
                     }
                   >
                     {tag}
@@ -197,7 +175,7 @@ export function ProjectsPage() {
       </section>
 
       {/* Grid */}
-      <section className="py-14 sm:py-20">
+      <section className="py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-6">
           {loading ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -217,55 +195,23 @@ export function ProjectsPage() {
           ) : filtered.length === 0 ? (
             <EmptySearchIllustration />
           ) : (
-            <motion.div layout className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <motion.div
+              layout
+              initial="initial"
+              animate="animate"
+              variants={{ animate: { transition: { staggerChildren: 0.1 } } }}
+              className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+            >
               <AnimatePresence mode="popLayout">
                 {filtered.map((project) => (
                   <motion.div
                     key={project.id}
                     layout
-                    {...fadeUp}
+                    variants={animVariants.fadeUp}
+                    transition={animTransition}
                     exit={{ opacity: 0, scale: 0.95 }}
                   >
-                    <Link to={`/projects/${project.slug}`}>
-                      <Card className="group h-full overflow-hidden border-border/40 bg-surface transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/30 hover:shadow-xl hover:shadow-black/20">
-                        {project.cover_image ? (
-                          <div className="aspect-video overflow-hidden">
-                            <img
-                              src={project.cover_image}
-                              alt={project.title}
-                              className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            />
-                          </div>
-                        ) : (
-                          <div className="flex aspect-video items-center justify-center bg-gradient-to-br from-gold/10 via-surface to-surface">
-                            <span className="text-4xl font-extrabold text-gold/20">{project.title[0]}</span>
-                          </div>
-                        )}
-                        <CardContent className="p-5">
-                          <div className="mb-3 flex flex-wrap gap-1.5">
-                            {project.tags.slice(0, 3).map((tag) => (
-                              <Badge key={tag} variant="secondary" className="bg-secondary/60 text-xs">{tag}</Badge>
-                            ))}
-                          </div>
-                          <h3 className="mb-2 font-semibold leading-snug text-foreground transition-colors group-hover:text-gold">
-                            {project.title}
-                          </h3>
-                          <p className="text-sm leading-[1.75] text-muted-foreground line-clamp-2">{project.description}</p>
-                          <div className="mt-4 flex items-center gap-4">
-                            {project.github_url && (
-                              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                <GitBranch className="size-3.5" />GitHub
-                              </span>
-                            )}
-                            {project.live_url && (
-                              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                                <ExternalLink className="size-3.5" />Live
-                              </span>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
+                    <ProjectCard project={project} />
                   </motion.div>
                 ))}
               </AnimatePresence>
@@ -274,5 +220,64 @@ export function ProjectsPage() {
         </div>
       </section>
     </div>
+  )
+}
+
+function ProjectCard({ project }: { project: Project }) {
+  return (
+    <Link to={`/projects/${project.slug}`}>
+      <Card className="glass-card animated-border group h-full overflow-hidden">
+        {project.cover_image ? (
+          <div className="relative aspect-video overflow-hidden">
+            <img
+              src={project.cover_image}
+              alt={project.title}
+              className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+            {/* Gradient overlay on hover */}
+            <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          </div>
+        ) : (
+          <div className="flex aspect-video items-center justify-center bg-gradient-to-br from-gold/10 via-surface to-surface">
+            <span className="text-4xl font-extrabold text-gold/20">{project.title[0]}</span>
+          </div>
+        )}
+        <CardContent className="p-5">
+          <div className="mb-3 flex flex-wrap gap-1.5">
+            {project.tags.slice(0, 3).map((tag) => (
+              <Badge
+                key={tag}
+                variant="secondary"
+                className="bg-secondary/60 text-xs transition-colors duration-200 group-hover:border-gold/20 group-hover:bg-secondary/80"
+              >
+                {tag}
+              </Badge>
+            ))}
+          </div>
+          <h3 className="mb-2 font-semibold leading-snug text-foreground transition-colors duration-200 group-hover:text-gold">
+            {project.title}
+          </h3>
+          <p className="text-sm leading-[1.75] text-muted-foreground line-clamp-2">{project.description}</p>
+          {/* Buttons slide in on hover */}
+          <div className="mt-4 flex items-center gap-3 overflow-hidden">
+            {project.github_url && (
+              <span className="flex translate-y-0 items-center gap-1.5 text-xs text-muted-foreground transition-all duration-300 group-hover:text-foreground">
+                <GitBranch className="size-3.5 transition-transform duration-300 group-hover:scale-110" />
+                GitHub
+              </span>
+            )}
+            {project.live_url && (
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground transition-all duration-300 group-hover:translate-x-1 group-hover:text-foreground">
+                <ExternalLink className="size-3.5 transition-transform duration-300 group-hover:scale-110" />
+                Live Demo
+              </span>
+            )}
+            <span className="ml-auto flex items-center gap-1 text-xs text-muted-foreground/40 opacity-0 transition-all duration-300 group-hover:opacity-100">
+              View <ArrowRight className="size-3" />
+            </span>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
   )
 }

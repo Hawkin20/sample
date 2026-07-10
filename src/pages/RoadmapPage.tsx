@@ -7,18 +7,12 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { supabase } from '@/lib/supabase'
 import type { Roadmap } from '@/types/database'
 import { cn } from '@/lib/utils'
-
-const fadeUp = {
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.4 },
-}
-const stagger = { animate: { transition: { staggerChildren: 0.07 } } }
+import { BackgroundEffects } from '@/components/effects/BackgroundEffects'
+import { animVariants, animTransition } from '@/components/effects/AnimatedSection'
 
 function EmptyColumnIllustration() {
   return (
     <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border/30 px-4 py-10">
-      {/* Gold-outline geometric SVG */}
       <svg
         viewBox="0 0 72 72"
         fill="none"
@@ -26,25 +20,8 @@ function EmptyColumnIllustration() {
         className="size-12 opacity-60"
         aria-hidden="true"
       >
-        {/* Outer diamond */}
-        <polygon
-          points="36,6 66,36 36,66 6,36"
-          stroke="oklch(0.75 0.12 85)"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-          fill="none"
-          opacity="0.4"
-        />
-        {/* Inner diamond */}
-        <polygon
-          points="36,18 54,36 36,54 18,36"
-          stroke="oklch(0.75 0.12 85)"
-          strokeWidth="1.5"
-          strokeLinejoin="round"
-          fill="none"
-          opacity="0.25"
-        />
-        {/* Centre dot */}
+        <polygon points="36,6 66,36 36,66 6,36" stroke="oklch(0.75 0.12 85)" strokeWidth="1.5" strokeLinejoin="round" fill="none" opacity="0.4" />
+        <polygon points="36,18 54,36 36,54 18,36" stroke="oklch(0.75 0.12 85)" strokeWidth="1.5" strokeLinejoin="round" fill="none" opacity="0.25" />
         <circle cx="36" cy="36" r="3" fill="oklch(0.75 0.12 85)" opacity="0.5" />
       </svg>
       <p className="text-center text-xs text-muted-foreground/60">No items in this column yet</p>
@@ -58,6 +35,7 @@ const columns: {
   icon: React.ComponentType<{ className?: string }>
   color: string
   badgeClass: string
+  progressColor: string
 }[] = [
   {
     status: 'planned',
@@ -65,6 +43,7 @@ const columns: {
     icon: Circle,
     color: 'text-muted-foreground',
     badgeClass: 'bg-secondary/60 text-secondary-foreground',
+    progressColor: 'from-muted-foreground/40 to-muted-foreground/20',
   },
   {
     status: 'in_progress',
@@ -72,6 +51,7 @@ const columns: {
     icon: Clock,
     color: 'text-blue-400',
     badgeClass: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+    progressColor: 'from-blue-500/60 to-blue-400/30',
   },
   {
     status: 'completed',
@@ -79,6 +59,7 @@ const columns: {
     icon: CheckCircle2,
     color: 'text-emerald-400',
     badgeClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+    progressColor: 'from-emerald-500/60 to-emerald-400/30',
   },
   {
     status: 'archived',
@@ -86,6 +67,7 @@ const columns: {
     icon: Archive,
     color: 'text-muted-foreground/50',
     badgeClass: 'bg-secondary/30 text-muted-foreground/50',
+    progressColor: 'from-muted-foreground/30 to-muted-foreground/10',
   },
 ]
 
@@ -106,17 +88,23 @@ export function RoadmapPage() {
 
   const byStatus = (status: Roadmap['status']) => items.filter((i) => i.status === status)
 
+  // Calculate progress per column
+  const totalItems = items.length
+  const columnProgress = (status: Roadmap['status']) => {
+    if (totalItems === 0) return 0
+    return Math.round((byStatus(status).length / totalItems) * 100)
+  }
+
   return (
     <div className="pt-20">
       {/* Hero */}
-      <section className="relative overflow-hidden py-20 text-center sm:py-28">
-        <div className="pointer-events-none absolute inset-0 flex items-start justify-center pt-10">
-          <div className="size-[400px] rounded-full bg-gold/5 blur-[100px]" />
-        </div>
-        <div className="mx-auto max-w-2xl px-6">
+      <section className="relative overflow-hidden py-24 text-center sm:py-32">
+        <BackgroundEffects />
+        <div className="relative z-10 mx-auto max-w-2xl px-6">
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={animTransition}
             className="mb-3 text-sm font-medium tracking-wide text-gold"
           >
             What's Next
@@ -124,15 +112,15 @@ export function RoadmapPage() {
           <motion.h1
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.05 }}
+            transition={{ ...animTransition, delay: 0.05 }}
             className="mb-4 text-3xl font-extrabold tracking-tight sm:text-5xl"
           >
-            Roadmap
+            <span className="text-gradient-gold">Roadmap</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ ...animTransition, delay: 0.1 }}
             className="text-base leading-[1.75] text-muted-foreground"
           >
             A transparent look at what I'm working on, planning, and have completed.
@@ -141,7 +129,7 @@ export function RoadmapPage() {
       </section>
 
       {/* Kanban Board */}
-      <section className="pb-24 pt-6">
+      <section className="pb-28 pt-6">
         <div className="mx-auto max-w-7xl px-6">
           {loading ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -158,36 +146,38 @@ export function RoadmapPage() {
             <motion.div
               initial="initial"
               animate="animate"
-              variants={stagger}
+              variants={{ animate: { transition: { staggerChildren: 0.1 } } }}
               className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4"
             >
               {columns.map((col) => {
                 const Icon = col.icon
                 const colItems = byStatus(col.status)
+                const progress = columnProgress(col.status)
                 return (
-                  <motion.div key={col.status} variants={fadeUp}>
-                    {/* Column Header — subtle pulse animation via CSS */}
-                    <div className="mb-4 flex items-center justify-between">
-                      <div
-                        className={cn(
-                          'flex items-center gap-2 text-sm font-semibold',
-                          col.color,
-                          // pulse only on non-empty columns
-                          colItems.length > 0 && col.status === 'in_progress' && 'animate-pulse'
-                        )}
-                        style={
-                          colItems.length > 0 && col.status === 'in_progress'
-                            ? { animationDuration: '2.5s' }
-                            : undefined
-                        }
-                      >
-                        <Icon className="size-4" />
+                  <motion.div key={col.status} variants={animVariants.fadeUp} transition={animTransition}>
+                    {/* Glass column header */}
+                    <div className="glass-card mb-4 flex items-center justify-between rounded-lg px-4 py-3">
+                      <div className={cn('flex items-center gap-2 text-sm font-semibold', col.color)}>
+                        <Icon className={cn('size-4', col.status === 'in_progress' && colItems.length > 0 && 'pulse-glow rounded-full')} />
                         {col.label}
                       </div>
                       <Badge variant="secondary" className="bg-secondary/60 text-xs">
                         {colItems.length}
                       </Badge>
                     </div>
+
+                    {/* Animated progress bar */}
+                    {colItems.length > 0 && (
+                      <div className="mb-4 h-1 w-full overflow-hidden rounded-full bg-border/20">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          whileInView={{ width: `${progress}%` }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                          className={cn('h-full rounded-full bg-gradient-to-r', col.progressColor)}
+                        />
+                      </div>
+                    )}
 
                     {/* Cards */}
                     <div className="min-h-[120px] space-y-3">
@@ -197,9 +187,11 @@ export function RoadmapPage() {
                         colItems.map((item) => (
                           <motion.div
                             key={item.id}
-                            whileHover={{ y: -2, transition: { duration: 0.15 } }}
+                            variants={animVariants.fadeUp}
+                            transition={animTransition}
+                            whileHover={{ y: -3, transition: { duration: 0.15 } }}
                           >
-                            <Card className="border-border/40 bg-surface transition-colors hover:border-gold/20">
+                            <Card className="glass-card animated-border">
                               <CardContent className="p-4">
                                 <h3 className="mb-1.5 text-sm font-medium leading-snug text-foreground">
                                   {item.title}
