@@ -11,6 +11,7 @@ import type { Journey } from '@/types/database'
 import { cn } from '@/lib/utils'
 import { BackgroundEffects } from '@/components/effects/BackgroundEffects'
 import { AnimatedSection, animVariants, animTransition } from '@/components/effects/AnimatedSection'
+import { CountUp } from '@/components/effects/CountUp'
 
 const typeIcon = { job: Briefcase, education: GraduationCap, milestone: Star }
 const typeColor = { job: 'text-blue-400', education: 'text-purple-400', milestone: 'text-gold' }
@@ -113,6 +114,66 @@ export function AboutPage() {
               {aboutSettings.bio}
             </motion.p>
           </AnimatedSection>
+        </div>
+      </section>
+
+      {/* Split layout — image + stats counter */}
+      <section className="border-t border-border/40 py-24 sm:py-32">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            {/* Image side */}
+            <AnimatedSection animation="slideLeft">
+              <div className="relative mx-auto max-w-sm">
+                <div className="glass-card relative overflow-hidden rounded-2xl">
+                  <div className="flex aspect-square items-center justify-center bg-gradient-to-br from-gold/15 via-surface to-surface">
+                    <span className="text-8xl font-extrabold text-gradient-gold">VPE</span>
+                  </div>
+                  {/* Decorative gold ring */}
+                  <div className="pointer-events-none absolute -inset-px rounded-2xl border border-gold/20" />
+                </div>
+                {/* Floating accent badge */}
+                <motion.div
+                  animate={{ y: [0, -8, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                  className="glass-card absolute -bottom-4 -right-4 flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground"
+                >
+                  <Coffee className="size-3.5 text-gold" />
+                  Based in the Philippines
+                </motion.div>
+              </div>
+            </AnimatedSection>
+
+            {/* Stats side */}
+            <AnimatedSection stagger>
+              <motion.div variants={animVariants.fadeUp} transition={animTransition} className="mb-8">
+                <p className="mb-2 text-sm font-medium tracking-wide text-gold">By the Numbers</p>
+                <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">A Quick <span className="text-gradient-gold">Snapshot</span></h2>
+              </motion.div>
+              <motion.div
+                variants={{ animate: { transition: { staggerChildren: 0.1 } } }}
+                className="grid grid-cols-2 gap-6"
+              >
+                {[
+                  { value: 10, suffix: '+', label: 'Projects Shipped' },
+                  { value: 3, suffix: '+', label: 'Years Coding' },
+                  { value: 20, suffix: '+', label: 'Tools Mastered' },
+                  { value: 100, suffix: '%', label: 'Dedication' },
+                ].map((stat) => (
+                  <motion.div
+                    key={stat.label}
+                    variants={animVariants.fadeScale}
+                    transition={animTransition}
+                    className="glass-card p-5 text-center"
+                  >
+                    <div className="text-3xl font-extrabold text-gradient-gold sm:text-4xl">
+                      <CountUp value={stat.value} suffix={stat.suffix} />
+                    </div>
+                    <div className="mt-1.5 text-xs text-muted-foreground">{stat.label}</div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </AnimatedSection>
+          </div>
         </div>
       </section>
 

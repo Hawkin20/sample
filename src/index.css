@@ -411,6 +411,31 @@
   opacity: 0;
 }
 
+/* ─── Typewriter cursor ────────────────────────────────── */
+.typewriter-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  background: var(--gold);
+  vertical-align: text-bottom;
+  animation: blink 1s step-end infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ─── Cinematic background ─────────────────────────────── */
+.cinematic-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  will-change: transform;
+}
+
 /* ─── Reduced motion ───────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -423,4 +448,5 @@
   .animated-gradient { animation: none !important; }
   .scroll-indicator-dot { animation: none !important; }
   .pulse-glow { animation: none !important; }
+  .typewriter-cursor { animation: none !important; opacity: 1 !important; }
 }

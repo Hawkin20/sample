@@ -248,3 +248,11 @@ export type Journey = Database['public']['Tables']['journey']['Row']
 export type Roadmap = Database['public']['Tables']['roadmap']['Row']
 export type Settings = Database['public']['Tables']['settings']['Row']
 export type ActivityLog = Database['public']['Tables']['activity_logs']['Row']
+export type ContactMessage = {
+  id: string
+  name: string
+  email: string
+  message: string
+  read: boolean
+  created_at: string
+}
