@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import {
-  ArrowRight, ExternalLink, GitBranch, Zap, Mail, User, MessageSquare,
+  ArrowRight, ExternalLink, GitBranch, Mail, User, MessageSquare,
   Send, Sparkles,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -17,6 +17,7 @@ import { Typewriter } from '@/components/effects/Typewriter'
 import { TiltCard } from '@/components/effects/TiltCard'
 import { SkillBar } from '@/components/effects/SkillBar'
 import { FloatingLabelInput, SuccessOverlay, AnimatePresence } from '@/components/effects/FloatingLabelInput'
+import { IDCard } from '@/components/effects/IDCard'
 
 const stats = [
   { value: 10, suffix: '+', label: 'Projects Built' },
@@ -26,14 +27,6 @@ const stats = [
 ]
 
 const heroPhrases = ['Full Stack Developer', 'UI Engineer', 'Problem Solver', 'Creative Coder']
-
-const floatingTech = [
-  { label: 'React', className: 'left-[8%] top-[25%]', delay: 0 },
-  { label: 'TypeScript', className: 'right-[10%] top-[20%]', delay: 0.5 },
-  { label: 'Supabase', className: 'left-[15%] bottom-[30%]', delay: 1 },
-  { label: 'Tailwind', className: 'right-[12%] bottom-[25%]', delay: 1.5 },
-  { label: 'Node.js', className: 'left-[45%] top-[12%]', delay: 2 },
-]
 
 const skillBars = [
   { label: 'React / Next.js', level: 95 },
@@ -79,8 +72,8 @@ export function HomePage() {
 
   return (
     <div className="relative">
-      {/* ── HERO — cinematic with typewriter ──────────────── */}
-      <section ref={heroRef} className="relative flex h-svh flex-col items-center justify-center overflow-hidden px-6">
+      {/* ── HERO — ID Card centerpiece with cinematic bg ──── */}
+      <section ref={heroRef} className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden px-6 pt-24 pb-16">
         {/* Cinematic background image with parallax */}
         <motion.div
           style={{ y: bgY, scale: bgScale }}
@@ -95,75 +88,38 @@ export function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/60 to-background" />
         </motion.div>
 
-        {/* Soft radial glow behind title */}
-        <div className="pointer-events-none absolute left-1/2 top-1/2 -z-0 size-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/8 blur-[120px]" />
+        {/* Soft radial glow behind card */}
+        <div className="pointer-events-none absolute left-1/2 top-1/2 -z-0 size-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-indigo-500/10 blur-[120px]" />
 
-        {/* Floating tech badges */}
-        {floatingTech.map((tech) => (
-          <motion.div
-            key={tech.label}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.8 + tech.delay * 0.2, duration: 0.6 }}
-            className={`absolute hidden lg:block ${tech.className}`}
-          >
-            <motion.div
-              animate={{ y: [0, -12, 0] }}
-              transition={{ duration: 4 + tech.delay, repeat: Infinity, ease: 'easeInOut' }}
-              className="glass-card flex items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground"
-            >
-              <span className="size-1.5 rounded-full bg-gold/60" />
-              {tech.label}
-            </motion.div>
-          </motion.div>
-        ))}
+        {/* ID Card — centerpiece */}
+        <div className="relative z-10 mb-10">
+          <IDCard />
+        </div>
 
+        {/* Subtitle with typewriter */}
         <motion.div
           style={{ y: contentY, opacity: contentOpacity }}
-          className="relative z-10 mx-auto max-w-4xl text-center"
+          className="relative z-10 mx-auto max-w-2xl text-center"
         >
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ ...animTransition, delay: 0.1 }}
+            transition={{ ...animTransition, delay: 0.8 }}
             className="mb-4 text-sm font-medium tracking-widest text-gold uppercase"
           >
             <Sparkles className="mr-1.5 inline size-3.5" />
             Vincent Paul Ecaldre
           </motion.p>
 
-          {/* Name with typewriter */}
-          <h1 className="mb-4 text-4xl font-extrabold tracking-tight sm:text-6xl md:text-7xl">
-            <span className="block overflow-hidden">
-              <motion.span
-                initial={{ y: '100%' }}
-                animate={{ y: '0%' }}
-                transition={{ ...animTransition, delay: 0.15 }}
-                className="block"
-              >
-                <Typewriter phrases={heroPhrases} className="text-gradient-gold" />
-              </motion.span>
-            </span>
-          </h1>
-
-          {/* Badge directly below name */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ ...animTransition, delay: 0.4 }}
-            className="mb-6 flex justify-center"
-          >
-            <Badge variant="outline" className="border-gold/30 bg-gold/5 text-gold">
-              <Zap className="mr-1.5 size-3" />
-              Available for work
-            </Badge>
-          </motion.div>
+          <h2 className="mb-4 text-2xl font-extrabold tracking-tight sm:text-3xl">
+            <Typewriter phrases={heroPhrases} className="text-gradient-gold" />
+          </h2>
 
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ ...animTransition, delay: 0.5 }}
-            className="mx-auto mb-10 max-w-xl text-base leading-[1.8] text-muted-foreground sm:text-lg"
+            transition={{ ...animTransition, delay: 1 }}
+            className="mx-auto mb-8 max-w-xl text-base leading-[1.8] text-muted-foreground"
           >
             {heroSettings.subheading}
           </motion.p>
@@ -172,7 +128,7 @@ export function HomePage() {
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ ...animTransition, delay: 0.6 }}
+            transition={{ ...animTransition, delay: 1.1 }}
             className="flex flex-wrap items-center justify-center gap-4"
           >
             <MagneticButton>
@@ -195,7 +151,7 @@ export function HomePage() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1.4 }}
+          transition={{ delay: 1.6 }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2"
         >
           <div className="flex h-10 w-6 items-start justify-center rounded-full border border-border/40 p-1.5">
