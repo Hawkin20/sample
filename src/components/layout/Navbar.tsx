@@ -19,7 +19,8 @@ const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About' },
   { href: '/projects', label: 'Projects' },
-  { href: '/roadmap', label: 'Roadmap' },
+  { href: '/skills', label: 'Skills' },
+  { href: '/contact', label: 'Contact' },
 ]
 
 function ThemeToggle() {
@@ -75,6 +76,10 @@ export function Navbar() {
   const { scrollY } = useScroll()
   const hiddenY = useMotionValue(0)
   const [hidden, setHidden] = useState(false)
+  // Scroll progress bar
+  const { scrollYProgress } = useScroll()
+  const progressScaleX = useMotionValue(0)
+  useMotionValueEvent(scrollYProgress, 'change', (v) => progressScaleX.set(v))
 
   useMotionValueEvent(scrollY, 'change', (latest) => {
     const prev = scrollY.getPrevious() ?? 0
@@ -86,171 +91,181 @@ export function Navbar() {
     }
   })
 
-  // Close mobile menu on route change
   useEffect(() => {
     setMobileOpen(false)
   }, [location.pathname])
 
   return (
-    <motion.header
-      style={{ y: hiddenY }}
-      animate={{ y: hidden ? '-100%' : '0%' }}
-      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-      className={cn(
-        'fixed top-0 z-50 w-full transition-all duration-300',
-        scrolled
-          ? 'border-b border-border/40 bg-background/70 backdrop-blur-xl'
-          : 'bg-transparent'
-      )}
-    >
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        {/* Logo */}
-        <Link
-          to="/"
-          className="flex items-center gap-2 transition-opacity duration-200 hover:opacity-80"
-        >
-          <span className="text-lg font-bold tracking-tight">
-            <span className="text-gradient-gold">VP</span>
-            <span className="text-foreground">E</span>
-          </span>
-        </Link>
+    <>
+      {/* Scroll progress bar */}
+      <motion.div
+        className="scroll-progress-bar"
+        style={{ scaleX: progressScaleX }}
+        aria-hidden="true"
+      />
 
-        {/* Desktop nav with animated underline */}
-        <div className="hidden items-center gap-1 md:flex">
-          {navLinks.map((link) => (
-            <NavLink
-              key={link.href}
-              to={link.href}
-              end={link.href === '/'}
-              className={({ isActive }) =>
-                cn(
-                  'group relative rounded-md px-3 py-2 text-sm font-medium transition-all duration-200',
-                  isActive
-                    ? 'text-foreground'
-                    : 'text-muted-foreground opacity-70 hover:text-foreground hover:opacity-100'
-                )
-              }
-            >
-              {({ isActive }) => (
-                <>
-                  {link.label}
-                  <span
-                    className={cn(
-                      'absolute bottom-0.5 left-1/2 h-px -translate-x-1/2 bg-gold transition-all duration-300',
-                      isActive ? 'w-4 opacity-100' : 'w-0 opacity-0 group-hover:w-3 group-hover:opacity-60',
-                    )}
-                  />
-                </>
-              )}
-            </NavLink>
-          ))}
-        </div>
-
-        {/* Right side */}
-        <div className="hidden items-center gap-2 md:flex">
-          <ThemeToggle />
-          {user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 rounded-full outline-none ring-ring transition-opacity hover:opacity-80 focus-visible:ring-2 ml-1">
-                  <Avatar className="size-8">
-                    <AvatarImage src={profile?.avatar_url ?? undefined} />
-                    <AvatarFallback className="bg-secondary text-xs">
-                      {profile?.full_name?.[0] ?? 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <div className="px-2 py-1.5">
-                  <p className="text-sm font-medium">{profile?.full_name}</p>
-                  <p className="text-xs text-muted-foreground capitalize">{profile?.role}</p>
-                </div>
-                <DropdownMenuSeparator />
-                {isAdmin && (
-                  <DropdownMenuItem onClick={() => navigate('/admin')}>
-                    Admin Dashboard
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
-                  Sign Out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => navigate('/login')}
-              className="btn-glass border-border/50 text-muted-foreground hover:text-foreground"
-            >
-              Sign In
-            </Button>
-          )}
-        </div>
-
-        {/* Mobile right: theme toggle + hamburger */}
-        <div className="flex items-center gap-1 md:hidden">
-          <ThemeToggle />
-          <button
-            className="flex items-center justify-center rounded-md p-2 text-muted-foreground transition-all duration-200 hover:text-foreground"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-          </button>
-        </div>
-      </nav>
-
-      {/* Mobile menu */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="overflow-hidden border-b border-border/50 bg-background/95 backdrop-blur-xl md:hidden"
-          >
-            <div className="flex flex-col gap-0.5 px-6 pb-5 pt-2">
-              {navLinks.map((link, i) => (
-                <motion.div
-                  key={link.href}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                >
-                  <NavLink
-                    to={link.href}
-                    end={link.href === '/'}
-                    onClick={() => setMobileOpen(false)}
-                    className={({ isActive }) =>
-                      cn(
-                        'rounded-md px-2 py-2.5 text-sm font-medium transition-all duration-150',
-                        isActive
-                          ? 'text-foreground'
-                          : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
-                      )
-                    }
-                  >
-                    {link.label}
-                  </NavLink>
-                </motion.div>
-              ))}
-              {!user && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="btn-glass mt-3 w-fit border-border/50 hover:border-gold/40"
-                  onClick={() => { setMobileOpen(false); navigate('/login') }}
-                >
-                  Sign In
-                </Button>
-              )}
-            </div>
-          </motion.div>
+      <motion.header
+        style={{ y: hiddenY }}
+        animate={{ y: hidden ? '-100%' : '0%' }}
+        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+        className={cn(
+          'fixed top-0 z-50 w-full transition-all duration-300',
+          scrolled
+            ? 'border-b border-border/40 bg-background/70 backdrop-blur-xl'
+            : 'bg-transparent'
         )}
-      </AnimatePresence>
-    </motion.header>
+      >
+        <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
+          {/* Logo */}
+          <Link
+            to="/"
+            className="flex items-center gap-2 transition-opacity duration-200 hover:opacity-80"
+          >
+            <span className="text-lg font-bold tracking-tight">
+              <span className="text-gradient">VP</span>
+              <span className="text-foreground">E</span>
+            </span>
+          </Link>
+
+          {/* Desktop nav with animated underline */}
+          <div className="hidden items-center gap-1 md:flex">
+            {navLinks.map((link) => (
+              <NavLink
+                key={link.href}
+                to={link.href}
+                end={link.href === '/'}
+                className={({ isActive }) =>
+                  cn(
+                    'group relative rounded-md px-3 py-2 text-sm font-medium transition-all duration-200',
+                    isActive
+                      ? 'text-foreground'
+                      : 'text-muted-foreground opacity-70 hover:text-foreground hover:opacity-100'
+                  )
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {link.label}
+                    <span
+                      className={cn(
+                        'absolute bottom-0.5 left-1/2 h-px -translate-x-1/2 transition-all duration-300',
+                        isActive
+                          ? 'w-5 opacity-100 bg-gradient-to-r from-indigo to-violet'
+                          : 'w-0 opacity-0 group-hover:w-3 group-hover:opacity-60 group-hover:bg-muted-foreground',
+                      )}
+                    />
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </div>
+
+          {/* Right side */}
+          <div className="hidden items-center gap-2 md:flex">
+            <ThemeToggle />
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 rounded-full outline-none ring-ring transition-opacity hover:opacity-80 focus-visible:ring-2 ml-1">
+                    <Avatar className="size-8">
+                      <AvatarImage src={profile?.avatar_url ?? undefined} />
+                      <AvatarFallback className="bg-secondary text-xs">
+                        {profile?.full_name?.[0] ?? 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <div className="px-2 py-1.5">
+                    <p className="text-sm font-medium">{profile?.full_name}</p>
+                    <p className="text-xs text-muted-foreground capitalize">{profile?.role}</p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  {isAdmin && (
+                    <DropdownMenuItem onClick={() => navigate('/admin')}>
+                      Admin Dashboard
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => navigate('/login')}
+                className="btn-glass border-border/50 text-muted-foreground hover:text-foreground"
+              >
+                Sign In
+              </Button>
+            )}
+          </div>
+
+          {/* Mobile right: theme toggle + hamburger */}
+          <div className="flex items-center gap-1 md:hidden">
+            <ThemeToggle />
+            <button
+              className="flex items-center justify-center rounded-md p-2 text-muted-foreground transition-all duration-200 hover:text-foreground"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            </button>
+          </div>
+        </nav>
+
+        {/* Mobile menu */}
+        <AnimatePresence>
+          {mobileOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="overflow-hidden border-b border-border/50 bg-background/95 backdrop-blur-xl md:hidden"
+            >
+              <div className="flex flex-col gap-0.5 px-6 pb-5 pt-2">
+                {navLinks.map((link, i) => (
+                  <motion.div
+                    key={link.href}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                  >
+                    <NavLink
+                      to={link.href}
+                      end={link.href === '/'}
+                      onClick={() => setMobileOpen(false)}
+                      className={({ isActive }) =>
+                        cn(
+                          'rounded-md px-2 py-2.5 text-sm font-medium transition-all duration-150',
+                          isActive
+                            ? 'text-foreground'
+                            : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
+                        )
+                      }
+                    >
+                      {link.label}
+                    </NavLink>
+                  </motion.div>
+                ))}
+                {!user && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="btn-glass mt-3 w-fit border-border/50 hover:border-indigo/40"
+                    onClick={() => { setMobileOpen(false); navigate('/login') }}
+                  >
+                    Sign In
+                  </Button>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.header>
+    </>
   )
 }

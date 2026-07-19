@@ -118,7 +118,7 @@ export function ProjectDetailPage() {
                 </Button>
               )}
               {project.live_url && (
-                <Button asChild className="btn-gold group">
+                <Button asChild className="btn-primary group">
                   <a href={project.live_url} target="_blank" rel="noopener noreferrer">
                     <ExternalLink className="mr-2 size-4 transition-transform duration-200 group-hover:scale-110" />
                     Live Demo

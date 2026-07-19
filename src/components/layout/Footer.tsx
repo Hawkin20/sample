@@ -12,7 +12,8 @@ const navLinks = [
   { to: '/', label: 'Home' },
   { to: '/about', label: 'About' },
   { to: '/projects', label: 'Projects' },
-  { to: '/roadmap', label: 'Roadmap' },
+  { to: '/skills', label: 'Skills' },
+  { to: '/contact', label: 'Contact' },
 ]
 
 export function Footer() {
@@ -31,7 +32,7 @@ export function Footer() {
           whileInView={{ scaleX: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute left-0 top-0 h-px w-full origin-left bg-gradient-to-r from-transparent via-gold/40 to-transparent"
+          className="absolute left-0 top-0 h-px w-full origin-left bg-gradient-to-r from-transparent via-indigo/40 to-transparent"
         />
 
         {/* Main grid */}
@@ -45,7 +46,7 @@ export function Footer() {
           {/* Brand */}
           <div className="flex flex-col gap-2">
             <Link to="/" className="w-fit text-lg font-bold transition-opacity hover:opacity-80">
-              <span className="text-gradient-gold">VP</span>
+              <span className="text-gradient">VP</span>
               <span className="text-foreground">E</span>
             </Link>
             <p className="text-sm leading-relaxed text-muted-foreground">
@@ -63,7 +64,7 @@ export function Footer() {
                   className="group relative rounded-md p-2 text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:text-foreground"
                 >
                   <Icon className="size-4 transition-transform duration-200 group-hover:scale-110" />
-                  <span className="pointer-events-none absolute inset-0 rounded-md opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-hover:shadow-[0_0_12px_2px_oklch(0.75_0.12_85_/_0.15)]" />
+                  <span className="pointer-events-none absolute inset-0 rounded-md opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-hover:shadow-[0_0_12px_2px_oklch(0.585_0.22_264_/_0.2)]" />
                 </a>
               ))}
             </div>
@@ -128,7 +129,7 @@ export function Footer() {
             <button
               onClick={scrollToTop}
               aria-label="Back to top"
-              className="group flex size-8 items-center justify-center rounded-full border border-border/40 text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:border-gold/40 hover:text-gold"
+              className="group flex size-8 items-center justify-center rounded-full border border-border/40 text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo/40 hover:text-indigo"
             >
               <ArrowUp className="size-3.5 transition-transform duration-200 group-hover:-translate-y-0.5" />
             </button>

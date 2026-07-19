@@ -105,14 +105,14 @@ export function HomePage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...animTransition, delay: 0.8 }}
-            className="mb-4 text-sm font-medium tracking-widest text-gold uppercase"
+            className="mb-4 text-sm font-medium tracking-widest text-indigo uppercase"
           >
             <Sparkles className="mr-1.5 inline size-3.5" />
             Vincent Paul Ecaldre
           </motion.p>
 
           <h2 className="mb-4 text-2xl font-extrabold tracking-tight sm:text-3xl">
-            <Typewriter phrases={heroPhrases} className="text-gradient-gold" />
+            <Typewriter phrases={heroPhrases} className="text-gradient" />
           </h2>
 
           <motion.p
@@ -132,7 +132,7 @@ export function HomePage() {
             className="flex flex-wrap items-center justify-center gap-4"
           >
             <MagneticButton>
-              <Button asChild size="lg" className="btn-gold group">
+              <Button asChild size="lg" className="btn-primary group">
                 <Link to="/projects">
                   {heroSettings.cta_primary}
                   <ArrowRight className="ml-2 size-4 transition-transform duration-200 group-hover:translate-x-1" />
@@ -155,7 +155,7 @@ export function HomePage() {
           className="absolute bottom-8 left-1/2 -translate-x-1/2"
         >
           <div className="flex h-10 w-6 items-start justify-center rounded-full border border-border/40 p-1.5">
-            <div className="scroll-indicator-dot size-1.5 rounded-full bg-gold" />
+            <div className="scroll-indicator-dot size-1.5 rounded-full bg-indigo" />
           </div>
         </motion.div>
       </section>
@@ -171,7 +171,7 @@ export function HomePage() {
                 transition={animTransition}
                 className="text-center"
               >
-                <div className="text-4xl font-extrabold text-gradient-gold sm:text-5xl">
+                <div className="text-4xl font-extrabold text-gradient sm:text-5xl">
                   <CountUp value={stat.value} suffix={stat.suffix} />
                 </div>
                 <div className="mt-2 text-sm text-muted-foreground">{stat.label}</div>
@@ -187,9 +187,9 @@ export function HomePage() {
           <div className="mx-auto max-w-6xl px-6">
             <AnimatedSection stagger>
               <motion.div variants={animVariants.fadeUp} transition={animTransition} className="mb-14">
-                <p className="mb-2 text-sm font-medium tracking-wide text-gold">Featured Work</p>
+                <p className="section-label mb-2">Featured Work</p>
                 <h2 className="text-2xl font-bold tracking-tight sm:text-4xl">
-                  Selected <span className="text-gradient-gold">Projects</span>
+                  Selected <span className="text-gradient">Projects</span>
                 </h2>
               </motion.div>
 
@@ -226,9 +226,9 @@ export function HomePage() {
         <div className="mx-auto max-w-4xl px-6">
           <AnimatedSection stagger>
             <motion.div variants={animVariants.fadeUp} transition={animTransition} className="mb-14">
-              <p className="mb-2 text-sm font-medium tracking-wide text-gold">Expertise</p>
+              <p className="section-label mb-2">Expertise</p>
               <h2 className="text-2xl font-bold tracking-tight sm:text-4xl">
-                Skills &amp; <span className="text-gradient-gold">Proficiency</span>
+                Skills &amp; <span className="text-gradient">Proficiency</span>
               </h2>
             </motion.div>
 
@@ -286,14 +286,14 @@ export function HomePage() {
         <div className="mx-auto max-w-6xl px-6 text-center">
           <AnimatedSection stagger>
             <motion.h2 variants={animVariants.fadeUp} transition={animTransition} className="mb-4 text-2xl font-bold tracking-tight sm:text-4xl">
-              Let's build something <span className="text-gradient-gold">together</span>
+              Let's build something <span className="text-gradient">together</span>
             </motion.h2>
             <motion.p variants={animVariants.fadeUp} transition={animTransition} className="mb-8 text-base leading-[1.75] text-muted-foreground">
               Open to new opportunities and exciting projects.
             </motion.p>
             <motion.div variants={animVariants.fadeUp} transition={animTransition}>
               <MagneticButton className="inline-block">
-                <Button asChild size="lg" className="btn-gold group">
+                <Button asChild size="lg" className="btn-primary group">
                   <a href="mailto:vincentecaldre25@gmail.com">
                     Get In Touch
                     <ArrowRight className="ml-2 size-4 transition-transform duration-200 group-hover:translate-x-1" />
@@ -388,9 +388,9 @@ function ContactSection() {
       <div className="mx-auto max-w-3xl px-6">
         <AnimatedSection stagger>
           <motion.div variants={animVariants.fadeUp} transition={animTransition} className="mb-12 text-center">
-            <p className="mb-2 text-sm font-medium tracking-wide text-gold">Get In Touch</p>
+            <p className="section-label mb-2">Get In Touch</p>
             <h2 className="text-2xl font-bold tracking-tight sm:text-4xl">
-              Let's <span className="text-gradient-gold">Connect</span>
+              Let's <span className="text-gradient">Connect</span>
             </h2>
             <p className="mx-auto mt-4 max-w-lg text-base leading-[1.75] text-muted-foreground">
               Have a project in mind or just want to say hi? Drop a message below.
@@ -455,14 +455,14 @@ function ContactSection() {
                     <Button
                       type="submit"
                       disabled={submitting}
-                      className="btn-gold group w-full"
+                      className="btn-primary group w-full"
                     >
                       {submitting ? (
                         <>
                           <motion.span
                             animate={{ rotate: 360 }}
                             transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                            className="mr-2 inline-block size-4 rounded-full border-2 border-gold-foreground/30 border-t-gold-foreground"
+                            className="mr-2 inline-block size-4 rounded-full border-2 border-white/30 border-t-white"
                           />
                           Sending...
                         </>

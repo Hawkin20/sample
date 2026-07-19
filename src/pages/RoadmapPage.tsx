@@ -105,7 +105,7 @@ export function RoadmapPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={animTransition}
-            className="mb-3 text-sm font-medium tracking-wide text-gold"
+            className="mb-3 text-sm font-medium tracking-wide text-indigo"
           >
             What's Next
           </motion.p>
@@ -115,7 +115,7 @@ export function RoadmapPage() {
             transition={{ ...animTransition, delay: 0.05 }}
             className="mb-4 text-3xl font-extrabold tracking-tight sm:text-5xl"
           >
-            <span className="text-gradient-gold">Roadmap</span>
+            <span className="text-gradient">Roadmap</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 16 }}

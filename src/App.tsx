@@ -10,6 +10,8 @@ import { AboutPage } from '@/pages/AboutPage'
 import { ProjectsPage } from '@/pages/ProjectsPage'
 import { ProjectDetailPage } from '@/pages/ProjectDetailPage'
 import { RoadmapPage } from '@/pages/RoadmapPage'
+import { SkillsPage } from '@/pages/SkillsPage'
+import { ContactPage } from '@/pages/ContactPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { AuthCallbackPage } from '@/pages/AuthCallbackPage'
 import { AdminDashboard } from '@/pages/admin/AdminDashboard'
@@ -37,6 +39,8 @@ export default function App() {
               <Route path="/projects" element={<ProjectsPage />} />
               <Route path="/projects/:slug" element={<ProjectDetailPage />} />
               <Route path="/roadmap" element={<RoadmapPage />} />
+              <Route path="/skills" element={<SkillsPage />} />
+              <Route path="/contact" element={<ContactPage />} />
             </Route>
 
             {/* Admin (protected) */}

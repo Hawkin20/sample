@@ -1,7 +1,8 @@
 import { useRef, useEffect, useState } from 'react'
 
 /**
- * Reusable animated background: floating blurred orbs + grid overlay + noise.
+ * Reusable animated background: floating blurred orbs + grid overlay.
+ * Consistent deep-space indigo/violet/cyan mesh across all pages.
  * Accepts optional mouse parallax via the `parallax` prop.
  */
 export function BackgroundEffects({ parallax = false }: { parallax?: boolean }) {
@@ -27,17 +28,17 @@ export function BackgroundEffects({ parallax = false }: { parallax?: boolean }) 
       {/* Grid overlay */}
       <div className="absolute inset-0 grid-overlay opacity-60" />
 
-      {/* Floating orbs with optional parallax */}
+      {/* Floating orbs — indigo, violet, cyan */}
       <div
-        className="absolute left-[10%] top-[15%] size-[400px] rounded-full bg-gold/8 blur-[100px] orb-1"
+        className="absolute left-[10%] top-[15%] size-[400px] rounded-full bg-indigo/8 blur-[100px] orb-1"
         style={parallax ? { transform: `translate(${offset.x * 20}px, ${offset.y * 20}px)` } : undefined}
       />
       <div
-        className="absolute right-[5%] top-[20%] size-[350px] rounded-full bg-blue-500/6 blur-[90px] orb-2"
+        className="absolute right-[5%] top-[20%] size-[350px] rounded-full bg-violet/8 blur-[90px] orb-2"
         style={parallax ? { transform: `translate(${offset.x * -30}px, ${offset.y * -30}px)` } : undefined}
       />
       <div
-        className="absolute bottom-[10%] left-[40%] size-[300px] rounded-full bg-purple-500/5 blur-[80px] orb-3"
+        className="absolute bottom-[10%] left-[40%] size-[300px] rounded-full bg-cyan/6 blur-[80px] orb-3"
         style={parallax ? { transform: `translate(${offset.x * 15}px, ${offset.y * -15}px)` } : undefined}
       />
     </div>
