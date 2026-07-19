@@ -19,11 +19,16 @@ import { SkillBar } from '@/components/effects/SkillBar'
 import { FloatingLabelInput, SuccessOverlay, AnimatePresence } from '@/components/effects/FloatingLabelInput'
 import { IDCard } from '@/components/effects/IDCard'
 
-const stats = [
-  { value: 10, suffix: '+', label: 'Projects Built' },
-  { value: 3, suffix: '+', label: 'Years Experience' },
-  { value: 20, suffix: '+', label: 'Technologies' },
-  { value: 100, suffix: '%', label: 'Passion' },
+type Stat =
+  | { display: 'number'; value: number; suffix: string; label: string }
+  | { display: 'text'; text: string; label: string }
+  | { display: 'easter-egg'; value: number; suffix: string; label: string; hoverText: string }
+
+const stats: Stat[] = [
+  { display: 'number', value: 2, suffix: '', label: 'Projects Built' },
+  { display: 'text', text: 'Student', label: 'Experience' },
+  { display: 'number', value: 10, suffix: '+', label: 'Technologies' },
+  { display: 'easter-egg', value: 9, suffix: '%', label: 'Passion', hoverText: '91% Sting Strawberry' },
 ]
 
 const heroPhrases = ['Full Stack Developer', 'UI Engineer', 'Problem Solver', 'Creative Coder']
@@ -169,10 +174,26 @@ export function HomePage() {
                 key={stat.label}
                 variants={animVariants.fadeScale}
                 transition={animTransition}
-                className="text-center"
+                className="group text-center"
               >
                 <div className="text-4xl font-extrabold text-gradient sm:text-5xl">
-                  <CountUp value={stat.value} suffix={stat.suffix} />
+                  {stat.display === 'number' && (
+                    <CountUp value={stat.value} suffix={stat.suffix} />
+                  )}
+                  {stat.display === 'text' && <span>{stat.text}</span>}
+                  {stat.display === 'easter-egg' && (
+                    <span className="relative inline-block">
+                      <span className="transition-opacity duration-300 group-hover:opacity-0">
+                        <CountUp value={stat.value} suffix={stat.suffix} />
+                      </span>
+                      <span
+                        className="pointer-events-none absolute inset-0 flex items-center justify-center whitespace-nowrap text-sm opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                        aria-hidden="true"
+                      >
+                        {stat.hoverText}
+                      </span>
+                    </span>
+                  )}
                 </div>
                 <div className="mt-2 text-sm text-muted-foreground">{stat.label}</div>
               </motion.div>
@@ -363,10 +384,26 @@ function ContactSection() {
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [errors, setErrors] = useState<{ name?: string; email?: string; message?: string }>({})
+
+  const validate = () => {
+    const e: { name?: string; email?: string; message?: string } = {}
+    if (!name.trim() || name.trim().length < 2) e.name = 'Name must be at least 2 characters'
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = 'Please enter a valid email'
+    if (!message.trim() || message.trim().length < 10) e.message = 'Message must be at least 10 characters'
+    return e
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (submitting || success) return
+
+    const validationErrors = validate()
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors)
+      return
+    }
+    setErrors({})
     setSubmitting(true)
     setError(null)
 
@@ -406,40 +443,59 @@ function ContactSection() {
               ) : (
                 <motion.form
                   key="form"
+                  noValidate
                   onSubmit={handleSubmit}
                   initial={{ opacity: 1 }}
                   exit={{ opacity: 0, y: -10 }}
                   className="glass-card space-y-4 p-6 sm:p-8"
                 >
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <FloatingLabelInput
-                      id="name"
-                      label="Your Name"
-                      value={name}
-                      onChange={setName}
-                      required
-                      icon={<User className="size-4" />}
-                    />
-                    <FloatingLabelInput
-                      id="email"
-                      label="Your Email"
-                      type="email"
-                      value={email}
-                      onChange={setEmail}
-                      required
-                      icon={<Mail className="size-4" />}
-                    />
+                    <div>
+                      <FloatingLabelInput
+                        id="name"
+                        label="Your Name"
+                        value={name}
+                        onChange={(v) => { setName(v); if (errors.name) setErrors((p) => ({ ...p, name: undefined })) }}
+                        required
+                        hasError={!!errors.name}
+                        icon={<User className="size-4" />}
+                      />
+                      {errors.name && (
+                        <p className="mt-1.5 text-xs text-destructive">{errors.name}</p>
+                      )}
+                    </div>
+                    <div>
+                      <FloatingLabelInput
+                        id="email"
+                        label="Your Email"
+                        type="email"
+                        value={email}
+                        onChange={(v) => { setEmail(v); if (errors.email) setErrors((p) => ({ ...p, email: undefined })) }}
+                        required
+                        hasError={!!errors.email}
+                        icon={<Mail className="size-4" />}
+                      />
+                      {errors.email && (
+                        <p className="mt-1.5 text-xs text-destructive">{errors.email}</p>
+                      )}
+                    </div>
                   </div>
-                  <FloatingLabelInput
-                    id="message"
-                    label="Your Message"
-                    value={message}
-                    onChange={setMessage}
-                    required
-                    textarea
-                    rows={5}
-                    icon={<MessageSquare className="size-4" />}
-                  />
+                  <div>
+                    <FloatingLabelInput
+                      id="message"
+                      label="Your Message"
+                      value={message}
+                      onChange={(v) => { setMessage(v); if (errors.message) setErrors((p) => ({ ...p, message: undefined })) }}
+                      required
+                      hasError={!!errors.message}
+                      textarea
+                      rows={5}
+                      icon={<MessageSquare className="size-4" />}
+                    />
+                    {errors.message && (
+                      <p className="mt-1.5 text-xs text-destructive">{errors.message}</p>
+                    )}
+                  </div>
 
                   {error && (
                     <motion.p

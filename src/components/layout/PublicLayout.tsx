@@ -1,11 +1,17 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect } from 'react'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { CustomCursor } from '@/components/effects/CustomCursor'
 
 export function PublicLayout() {
   const location = useLocation()
+
+  // Scroll to top on route change for consistent page transitions
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [location.pathname])
 
   return (
     <div className="relative flex min-h-svh flex-col bg-background">

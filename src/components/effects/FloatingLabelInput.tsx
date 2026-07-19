@@ -16,6 +16,7 @@ export function FloatingLabelInput({
   textarea,
   rows = 4,
   icon,
+  hasError,
 }: {
   id: string
   label: string
@@ -26,6 +27,7 @@ export function FloatingLabelInput({
   textarea?: boolean
   rows?: number
   icon?: ReactNode
+  hasError?: boolean
 }) {
   const [focused, setFocused] = useState(false)
   const floated = focused || value.length > 0
@@ -33,9 +35,11 @@ export function FloatingLabelInput({
   const sharedClass = cn(
     'w-full rounded-lg border bg-background/50 px-4 pb-2 pt-5 text-sm text-foreground transition-all duration-200',
     'placeholder:text-transparent focus:outline-none',
-    focused
-      ? 'border-gold/50 shadow-[0_0_0_3px_oklch(0.75_0.12_85_/_0.1)]'
-      : 'border-border/40 hover:border-border/60',
+    hasError
+      ? 'border-destructive/60 shadow-[0_0_0_3px_oklch(0.577_0.245_27.325_/_0.1)]'
+      : focused
+        ? 'border-indigo/50 shadow-[0_0_0_3px_oklch(0.585_0.22_264_/_0.1)]'
+        : 'border-border/40 hover:border-border/60',
   )
 
   return (

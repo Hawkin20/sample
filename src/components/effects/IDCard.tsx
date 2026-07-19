@@ -127,7 +127,6 @@ export function IDCard() {
   const reduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
   // Card dimensions — fixed for 3D math
-  const CARD_W = 360
   const CARD_H = 520
 
   return (
@@ -135,9 +134,10 @@ export function IDCard() {
       initial={reduced ? { opacity: 0 } : { opacity: 0, y: -400 }}
       animate={{ opacity: 1, y: 0 }}
       transition={reduced ? { duration: 0.3 } : { type: 'spring', stiffness: 100, damping: 10, delay: 0.2 }}
-      style={{ perspective: 1000, width: CARD_W, height: CARD_H }}
-      className="relative"
+      style={{ perspective: 1000, height: CARD_H }}
+      className="relative w-full"
     >
+      <div className="mx-auto" style={{ width: 'min(360px, calc(100vw - 3rem))' }}>
       {/* Inner wrapper handles tilt + flip */}
       <motion.div
         ref={ref}
@@ -285,6 +285,7 @@ export function IDCard() {
           </motion.div>
         </motion.div>
       </motion.div>
+      </div>
     </motion.div>
   )
 }
